@@ -18,6 +18,23 @@ const translations = {
     'nav.profile': 'Profile',
     'nav.logout': 'Logout',
     
+    // Landing page
+    'landing.signIn': 'Sign In',
+    'landing.heroTitle': 'Stay Safe, Stay Informed',
+    'landing.heroDescription': 'Cyprus Emergency Alert System provides real-time emergency notifications, interactive mapping, and community-based safety features for all villages across Cyprus.',
+    'landing.getStarted': 'Get Started - Sign In Now',
+    'landing.feature1Title': 'Interactive Mapping',
+    'landing.feature1Description': 'Report emergencies and view incidents on an interactive map of Cyprus with village boundaries.',
+    'landing.feature2Title': 'Real-Time Alerts',
+    'landing.feature2Description': 'Receive instant notifications about emergencies in your area via SMS and browser notifications.',
+    'landing.feature3Title': 'Village Network',
+    'landing.feature3Description': 'Connect with your local community and village administrators for coordinated emergency response.',
+    'landing.feature4Title': 'Emergency Services',
+    'landing.feature4Description': 'Quick access to Cyprus emergency contacts including police, fire department, and medical services.',
+    'landing.callToActionTitle': 'Join Your Village Community Today',
+    'landing.callToActionDescription': 'Sign in to access village-specific emergency alerts, report incidents in your area, and connect with your local emergency response network.',
+    'landing.signInToContinue': 'Sign In to Continue',
+    
     // Dashboard
     'dashboard.title': 'Emergency Dashboard',
     'dashboard.welcome': 'Welcome back',
@@ -136,6 +153,23 @@ const translations = {
     'nav.dashboard': 'Πίνακας Ελέγχου',
     'nav.profile': 'Προφίλ',
     'nav.logout': 'Αποσύνδεση',
+    
+    // Landing page
+    'landing.signIn': 'Σύνδεση',
+    'landing.heroTitle': 'Μείνετε Ασφαλείς, Μείνετε Ενημερωμένοι',
+    'landing.heroDescription': 'Το Σύστημα Ειδοποιήσεων Έκτακτης Ανάγκης της Κύπρου παρέχει ειδοποιήσεις έκτακτης ανάγκης σε πραγματικό χρόνο, διαδραστική χαρτογράφηση και λειτουργίες ασφάλειας βασισμένες στην κοινότητα για όλα τα χωριά σε όλη την Κύπρο.',
+    'landing.getStarted': 'Ξεκινήστε - Συνδεθείτε Τώρα',
+    'landing.feature1Title': 'Διαδραστική Χαρτογράφηση',
+    'landing.feature1Description': 'Αναφέρετε έκτακτες ανάγκες και δείτε περιστατικά σε διαδραστικό χάρτη της Κύπρου με όρια χωριών.',
+    'landing.feature2Title': 'Ειδοποιήσεις Πραγματικού Χρόνου',
+    'landing.feature2Description': 'Λαμβάνετε άμεσες ειδοποιήσεις για έκτακτες ανάγκες στην περιοχή σας μέσω SMS και ειδοποιήσεων περιηγητή.',
+    'landing.feature3Title': 'Δίκτυο Χωριού',
+    'landing.feature3Description': 'Συνδεθείτε με την τοπική σας κοινότητα και τους διαχειριστές χωριού για συντονισμένη αντίδραση έκτακτης ανάγκης.',
+    'landing.feature4Title': 'Υπηρεσίες Έκτακτης Ανάγκης',
+    'landing.feature4Description': 'Γρήγορη πρόσβαση σε επαφές έκτακτης ανάγκης της Κύπρου συμπεριλαμβανομένης αστυνομίας, πυροσβεστικής και ιατρικών υπηρεσιών.',
+    'landing.callToActionTitle': 'Εγγραφείτε στην Κοινότητα του Χωριού σας Σήμερα',
+    'landing.callToActionDescription': 'Συνδεθείτε για πρόσβαση σε ειδοποιήσεις έκτακτης ανάγκης του χωριού σας, αναφορά περιστατικών στην περιοχή σας και σύνδεση με το τοπικό δίκτυο αντίδρασης έκτακτης ανάγκης.',
+    'landing.signInToContinue': 'Συνδεθείτε για Συνέχεια',
     
     // Dashboard
     'dashboard.title': 'Πίνακας Ελέγχου Έκτακτων Αναγκών',

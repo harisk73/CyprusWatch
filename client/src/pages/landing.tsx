@@ -1,8 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Shield, MapPin, Bell, Users } from "lucide-react";
+import { useLanguage } from "@/contexts/language-context";
+import { LanguageSwitcher } from "@/components/language-switcher";
 
 export default function Landing() {
+  const { t } = useLanguage();
+  
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-cyan-50">
       {/* Header */}
@@ -13,12 +17,15 @@ export default function Landing() {
               <Shield className="text-primary text-2xl" />
               <h1 className="text-xl font-bold text-neutral-600">Cyprus Emergency Alert</h1>
             </div>
-            <Button 
-              onClick={() => window.location.href = '/api/login'}
-              className="bg-primary hover:bg-primary/90"
-            >
-              Sign In
-            </Button>
+            <div className="flex items-center space-x-4">
+              <LanguageSwitcher />
+              <Button 
+                onClick={() => window.location.href = '/api/login'}
+                className="bg-primary hover:bg-primary/90"
+              >
+                {t('landing.signIn')}
+              </Button>
+            </div>
           </div>
         </div>
       </header>
@@ -27,18 +34,17 @@ export default function Landing() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold text-neutral-600 mb-4">
-            Stay Safe, Stay Informed
+            {t('landing.heroTitle')}
           </h2>
           <p className="text-xl text-neutral-500 mb-8 max-w-3xl mx-auto">
-            Cyprus Emergency Alert System provides real-time emergency notifications, 
-            interactive mapping, and community-based safety features for all villages across Cyprus.
+            {t('landing.heroDescription')}
           </p>
           <Button 
             size="lg"
             onClick={() => window.location.href = '/api/login'}
             className="bg-primary hover:bg-primary/90 text-lg px-8 py-4"
           >
-            Get Started - Sign In Now
+            {t('landing.getStarted')}
           </Button>
         </div>
 
@@ -47,11 +53,11 @@ export default function Landing() {
           <Card className="text-center">
             <CardHeader>
               <MapPin className="h-12 w-12 text-primary mx-auto mb-4" />
-              <CardTitle className="text-lg">Interactive Mapping</CardTitle>
+              <CardTitle className="text-lg">{t('landing.feature1Title')}</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-neutral-500">
-                Report emergencies and view incidents on an interactive map of Cyprus with village boundaries.
+                {t('landing.feature1Description')}
               </p>
             </CardContent>
           </Card>
@@ -59,11 +65,11 @@ export default function Landing() {
           <Card className="text-center">
             <CardHeader>
               <Bell className="h-12 w-12 text-warning mx-auto mb-4" />
-              <CardTitle className="text-lg">Real-time Alerts</CardTitle>
+              <CardTitle className="text-lg">{t('landing.feature2Title')}</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-neutral-500">
-                Receive instant notifications about emergencies, weather warnings, and community updates.
+                {t('landing.feature2Description')}
               </p>
             </CardContent>
           </Card>
@@ -71,11 +77,11 @@ export default function Landing() {
           <Card className="text-center">
             <CardHeader>
               <Users className="h-12 w-12 text-success mx-auto mb-4" />
-              <CardTitle className="text-lg">Village Communities</CardTitle>
+              <CardTitle className="text-lg">{t('landing.feature3Title')}</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-neutral-500">
-                Connect with your village community and receive location-specific emergency information.
+                {t('landing.feature3Description')}
               </p>
             </CardContent>
           </Card>
@@ -83,11 +89,11 @@ export default function Landing() {
           <Card className="text-center">
             <CardHeader>
               <Shield className="h-12 w-12 text-emergency mx-auto mb-4" />
-              <CardTitle className="text-lg">Emergency Contacts</CardTitle>
+              <CardTitle className="text-lg">{t('landing.feature4Title')}</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-neutral-500">
-                Manage your emergency contacts and access quick dial numbers for emergency services.
+                {t('landing.feature4Description')}
               </p>
             </CardContent>
           </Card>
@@ -96,18 +102,17 @@ export default function Landing() {
         {/* Call to Action */}
         <div className="bg-white rounded-xl shadow-lg p-8 text-center">
           <h3 className="text-2xl font-bold text-neutral-600 mb-4">
-            Join Your Village Community Today
+            {t('landing.callToActionTitle')}
           </h3>
           <p className="text-neutral-500 mb-6 max-w-2xl mx-auto">
-            Sign in to access village-specific emergency alerts, report incidents in your area, 
-            and connect with your local emergency response network.
+            {t('landing.callToActionDescription')}
           </p>
           <Button 
             size="lg"
             onClick={() => window.location.href = '/api/login'}
             className="bg-primary hover:bg-primary/90"
           >
-            Sign In to Continue
+            {t('landing.signInToContinue')}
           </Button>
         </div>
       </main>
