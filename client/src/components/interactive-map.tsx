@@ -200,7 +200,7 @@ export default function InteractiveMap() {
                 <SelectTrigger className="w-48">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="z-50">
                   <SelectItem value="fire">🔥 Fire</SelectItem>
                   <SelectItem value="smoke">💨 Smoke</SelectItem>
                   <SelectItem value="flood">🌊 Flood</SelectItem>
@@ -220,10 +220,10 @@ export default function InteractiveMap() {
         </CardHeader>
         
         <CardContent className="p-0">
-          <div className="relative">
+          <div className="relative z-0">
             <div 
               ref={mapRef}
-              className="h-96 bg-neutral-100"
+              className="h-96 bg-neutral-100 relative z-0"
               style={{ height: "500px" }}
             >
               {!isMapReady && (

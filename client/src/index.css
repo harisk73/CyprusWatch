@@ -142,6 +142,15 @@
     background-color: hsl(var(--success) / 0.2);
   }
   
+  /* Map and dropdown z-index fixes */
+  .leaflet-container {
+    z-index: 1 !important;
+  }
+  
+  [data-radix-select-content] {
+    z-index: 9999 !important;
+  }
+  
   .primary\/10 {
     background-color: hsl(var(--primary) / 0.1);
   }
