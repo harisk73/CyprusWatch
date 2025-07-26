@@ -3,9 +3,29 @@ import { createServer, type Server } from "http";
 import { WebSocketServer, WebSocket } from "ws";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
-import { insertEmergencyServiceCallSchema } from "@shared/schema";
+import { insertEmergencyServiceCallSchema, insertEvacuationRouteSchema, insertEvacuationZoneSchema } from "@shared/schema";
 import { insertEmergencyPinSchema, insertAlertSchema } from "@shared/schema";
 import { z } from "zod";
+
+// Admin authorization middleware
+const isAdmin: typeof isAuthenticated = async (req: any, res, next) => {
+  // First check if user is authenticated
+  return isAuthenticated(req, res, async () => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      
+      if (!user || !user.isVillageAdmin) {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+      
+      next();
+    } catch (error) {
+      console.error("Error checking admin status:", error);
+      res.status(500).json({ message: "Failed to verify admin status" });
+    }
+  });
+};
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
@@ -224,6 +244,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching user alerts:", error);
       res.status(500).json({ message: "Failed to fetch user alerts" });
+    }
+  });
+
+  // Evacuation Routes (Admin only)
+  app.get('/api/evacuation-routes', isAdmin, async (req, res) => {
+    try {
+      const routes = await storage.getEvacuationRoutes();
+      res.json(routes);
+    } catch (error) {
+      console.error("Error fetching evacuation routes:", error);
+      res.status(500).json({ message: "Failed to fetch evacuation routes" });
+    }
+  });
+
+  app.post('/api/evacuation-routes', isAdmin, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const validatedData = insertEvacuationRouteSchema.parse(req.body);
+      
+      const route = await storage.createEvacuationRoute({
+        ...validatedData,
+        createdBy: userId,
+      });
+      
+      res.json(route);
+    } catch (error) {
+      console.error("Error creating evacuation route:", error);
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ message: "Invalid route data", errors: error.errors });
+      } else {
+        res.status(500).json({ message: "Failed to create evacuation route" });
+      }
     }
   });
 

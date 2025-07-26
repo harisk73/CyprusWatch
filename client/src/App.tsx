@@ -10,6 +10,7 @@ import Home from "@/pages/home";
 import Profile from "@/pages/profile";
 import EmergencyReport from "@/pages/emergency-report";
 import EmergencyServices from "@/pages/emergency-services";
+import EvacuationPlanning from "@/pages/evacuation-planning";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -24,6 +25,7 @@ function Router() {
           <Route path="/profile" component={Profile} />
           <Route path="/emergency-report" component={EmergencyReport} />
           <Route path="/emergency-services" component={EmergencyServices} />
+          <Route path="/evacuation-planning" component={EvacuationPlanning} />
         </>
       )}
       <Route component={NotFound} />

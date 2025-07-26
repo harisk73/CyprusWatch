@@ -28,7 +28,7 @@ Preferred communication style: Simple, everyday language.
 ### Database Design
 - **Database**: PostgreSQL via Neon serverless
 - **ORM**: Drizzle ORM with Zod validation
-- **Schema**: Village-based user system with emergency pins, alerts, and notifications
+- **Schema**: Village-based user system with emergency pins, alerts, notifications, emergency services, evacuation routes, and evacuation zones
 
 ## Key Components
 
@@ -41,6 +41,8 @@ Preferred communication style: Simple, everyday language.
 ### Emergency Management
 - **Emergency Pins**: Geo-located emergency reports with status tracking
 - **Alert System**: Village-based alert broadcasting with multiple types (emergency, warning, info)
+- **Emergency Services Integration**: Official Cyprus emergency contacts with direct calling capability
+- **Evacuation Route Planning**: Admin-only route management with turn-by-turn directions and hazard tracking
 - **Real-time Updates**: WebSocket connections for instant notifications
 
 ### Geographic Features
@@ -59,7 +61,9 @@ Preferred communication style: Simple, everyday language.
 1. **User Authentication**: Replit OIDC → Session creation → User profile lookup/creation
 2. **Emergency Reporting**: User input → Validation → Database storage → WebSocket broadcast → Alert delivery
 3. **Alert Management**: Admin creates alert → Target village filtering → Multi-channel delivery → Read status tracking
-4. **Real-time Updates**: Database changes → WebSocket events → Client updates → UI refresh
+4. **Emergency Services**: Service selection → Call logging → User safety tracking
+5. **Evacuation Planning**: Admin route creation → Database storage → Role-based access validation
+6. **Real-time Updates**: Database changes → WebSocket events → Client updates → UI refresh
 
 ## External Dependencies
 
@@ -105,6 +109,7 @@ Preferred communication style: Simple, everyday language.
 - Secure session cookies
 - CSRF protection via session-based auth
 - Input validation with Zod schemas
+- Role-based access control for admin features
 - Replit authentication integration
 
 ### Monitoring and Logging

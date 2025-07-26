@@ -146,6 +146,45 @@ export const emergencyServiceCalls = pgTable("emergency_service_calls", {
   notes: text("notes"),
 });
 
+// Evacuation routes table (admin/sub-admin only)
+export const evacuationRoutes = pgTable("evacuation_routes", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: varchar("name").notNull(),
+  description: text("description"),
+  villageId: varchar("village_id").notNull(),
+  createdBy: varchar("created_by").notNull(), // admin user id
+  routeType: varchar("route_type").notNull(), // primary, secondary, emergency_only
+  startPoint: jsonb("start_point").notNull(), // {lat, lng, name}
+  endPoint: jsonb("end_point").notNull(), // {lat, lng, name}
+  waypoints: jsonb("waypoints"), // array of {lat, lng, name}
+  instructions: jsonb("instructions"), // turn-by-turn directions
+  estimatedTime: varchar("estimated_time"), // e.g., "15 minutes"
+  capacity: varchar("capacity"), // estimated people capacity
+  vehicleTypes: text("vehicle_types").array(), // bus, car, walking, etc.
+  hazards: text("hazards"), // potential route hazards
+  isActive: boolean("is_active").default(true),
+  priority: varchar("priority").default("medium"), // high, medium, low
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Evacuation zones table (areas that need evacuation)
+export const evacuationZones = pgTable("evacuation_zones", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: varchar("name").notNull(),
+  description: text("description"),
+  villageId: varchar("village_id").notNull(),
+  createdBy: varchar("created_by").notNull(),
+  zoneType: varchar("zone_type").notNull(), // high_risk, medium_risk, safe_zone, assembly_point
+  boundaries: jsonb("boundaries").notNull(), // GeoJSON polygon
+  capacity: varchar("capacity"), // for assembly points
+  facilities: text("facilities").array(), // available facilities
+  accessRoutes: text("access_routes").array(), // connected route IDs
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Relations
 export const usersRelations = relations(users, ({ one, many }) => ({
   village: one(villages, {
@@ -202,6 +241,28 @@ export const emergencyServiceCallsRelations = relations(emergencyServiceCalls, (
   }),
 }));
 
+export const evacuationRoutesRelations = relations(evacuationRoutes, ({ one }) => ({
+  village: one(villages, {
+    fields: [evacuationRoutes.villageId],
+    references: [villages.id],
+  }),
+  creator: one(users, {
+    fields: [evacuationRoutes.createdBy],
+    references: [users.id],
+  }),
+}));
+
+export const evacuationZonesRelations = relations(evacuationZones, ({ one }) => ({
+  village: one(villages, {
+    fields: [evacuationZones.villageId],
+    references: [villages.id],
+  }),
+  creator: one(users, {
+    fields: [evacuationZones.createdBy],
+    references: [users.id],
+  }),
+}));
+
 // Insert schemas
 export const upsertUserSchema = createInsertSchema(users).omit({
   createdAt: true,
@@ -240,6 +301,18 @@ export const insertEmergencyServiceCallSchema = createInsertSchema(emergencyServ
   callInitiated: true,
 });
 
+export const insertEvacuationRouteSchema = createInsertSchema(evacuationRoutes).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertEvacuationZoneSchema = createInsertSchema(evacuationZones).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 // Types
 export type UpsertUser = z.infer<typeof upsertUserSchema>;
 export type User = typeof users.$inferSelect;
@@ -255,3 +328,7 @@ export type EmergencyService = typeof emergencyServices.$inferSelect;
 export type InsertEmergencyService = z.infer<typeof insertEmergencyServiceSchema>;
 export type EmergencyServiceCall = typeof emergencyServiceCalls.$inferSelect;
 export type InsertEmergencyServiceCall = z.infer<typeof insertEmergencyServiceCallSchema>;
+export type EvacuationRoute = typeof evacuationRoutes.$inferSelect;
+export type InsertEvacuationRoute = z.infer<typeof insertEvacuationRouteSchema>;
+export type EvacuationZone = typeof evacuationZones.$inferSelect;
+export type InsertEvacuationZone = z.infer<typeof insertEvacuationZoneSchema>;

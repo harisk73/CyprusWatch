@@ -6,6 +6,8 @@ import {
   alertDeliveries,
   emergencyServices,
   emergencyServiceCalls,
+  evacuationRoutes,
+  evacuationZones,
   type User,
   type UpsertUser,
   type Village,
@@ -20,6 +22,10 @@ import {
   type InsertEmergencyService,
   type EmergencyServiceCall,
   type InsertEmergencyServiceCall,
+  type EvacuationRoute,
+  type InsertEvacuationRoute,
+  type EvacuationZone,
+  type InsertEvacuationZone,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, inArray, and, desc } from "drizzle-orm";
@@ -59,6 +65,20 @@ export interface IStorage {
   createEmergencyService(service: InsertEmergencyService): Promise<EmergencyService>;
   logEmergencyServiceCall(call: InsertEmergencyServiceCall): Promise<EmergencyServiceCall>;
   getEmergencyServiceCallsByUser(userId: string): Promise<EmergencyServiceCall[]>;
+
+  // Evacuation route operations (admin only)
+  getEvacuationRoutes(): Promise<EvacuationRoute[]>;
+  getEvacuationRoutesByVillage(villageId: string): Promise<EvacuationRoute[]>;
+  createEvacuationRoute(route: InsertEvacuationRoute): Promise<EvacuationRoute>;
+  updateEvacuationRoute(id: string, updates: Partial<InsertEvacuationRoute>): Promise<EvacuationRoute | undefined>;
+  deleteEvacuationRoute(id: string): Promise<void>;
+
+  // Evacuation zone operations (admin only)
+  getEvacuationZones(): Promise<EvacuationZone[]>;
+  getEvacuationZonesByVillage(villageId: string): Promise<EvacuationZone[]>;
+  createEvacuationZone(zone: InsertEvacuationZone): Promise<EvacuationZone>;
+  updateEvacuationZone(id: string, updates: Partial<InsertEvacuationZone>): Promise<EvacuationZone | undefined>;
+  deleteEvacuationZone(id: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -250,6 +270,74 @@ export class DatabaseStorage implements IStorage {
       .from(emergencyServiceCalls)
       .where(eq(emergencyServiceCalls.userId, userId))
       .orderBy(desc(emergencyServiceCalls.callInitiated));
+  }
+
+  // Evacuation route operations
+  async getEvacuationRoutes(): Promise<EvacuationRoute[]> {
+    return await db.select().from(evacuationRoutes);
+  }
+
+  async getEvacuationRoutesByVillage(villageId: string): Promise<EvacuationRoute[]> {
+    return await db
+      .select()
+      .from(evacuationRoutes)
+      .where(eq(evacuationRoutes.villageId, villageId))
+      .orderBy(desc(evacuationRoutes.priority), desc(evacuationRoutes.createdAt));
+  }
+
+  async createEvacuationRoute(routeData: InsertEvacuationRoute): Promise<EvacuationRoute> {
+    const [route] = await db
+      .insert(evacuationRoutes)
+      .values(routeData)
+      .returning();
+    return route;
+  }
+
+  async updateEvacuationRoute(id: string, updates: Partial<InsertEvacuationRoute>): Promise<EvacuationRoute | undefined> {
+    const [updatedRoute] = await db
+      .update(evacuationRoutes)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(evacuationRoutes.id, id))
+      .returning();
+    return updatedRoute;
+  }
+
+  async deleteEvacuationRoute(id: string): Promise<void> {
+    await db.delete(evacuationRoutes).where(eq(evacuationRoutes.id, id));
+  }
+
+  // Evacuation zone operations
+  async getEvacuationZones(): Promise<EvacuationZone[]> {
+    return await db.select().from(evacuationZones);
+  }
+
+  async getEvacuationZonesByVillage(villageId: string): Promise<EvacuationZone[]> {
+    return await db
+      .select()
+      .from(evacuationZones)
+      .where(eq(evacuationZones.villageId, villageId))
+      .orderBy(desc(evacuationZones.createdAt));
+  }
+
+  async createEvacuationZone(zoneData: InsertEvacuationZone): Promise<EvacuationZone> {
+    const [zone] = await db
+      .insert(evacuationZones)
+      .values(zoneData)
+      .returning();
+    return zone;
+  }
+
+  async updateEvacuationZone(id: string, updates: Partial<InsertEvacuationZone>): Promise<EvacuationZone | undefined> {
+    const [updatedZone] = await db
+      .update(evacuationZones)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(evacuationZones.id, id))
+      .returning();
+    return updatedZone;
+  }
+
+  async deleteEvacuationZone(id: string): Promise<void> {
+    await db.delete(evacuationZones).where(eq(evacuationZones.id, id));
   }
 }
 

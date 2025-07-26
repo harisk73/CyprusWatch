@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Bell, MapPin, Phone, CheckCircle, AlertTriangle } from "lucide-react";
+import { Bell, MapPin, Phone, CheckCircle, AlertTriangle, Route } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Link } from "wouter";
 import EmergencyContactsModal from "@/components/emergency-contacts-modal";
@@ -180,6 +180,23 @@ export default function DashboardOverview() {
                   </div>
                 </Button>
               </Link>
+              
+              {user?.isVillageAdmin && (
+                <Link href="/evacuation-planning" className="w-full">
+                  <Button
+                    variant="outline"
+                    className="w-full p-4 h-auto bg-gradient-to-r from-purple-50 to-purple-25 border-purple-200 hover:bg-purple-100"
+                  >
+                    <div className="flex items-center space-x-3">
+                      <Route className="h-8 w-8 text-purple-600" />
+                      <div className="text-left">
+                        <h4 className="font-semibold text-neutral-700">Evacuation Planning</h4>
+                        <p className="text-sm text-neutral-500">Manage evacuation routes (Admin)</p>
+                      </div>
+                    </div>
+                  </Button>
+                </Link>
+              )}
 
               {user?.isVillageAdmin && (
                 <Button
