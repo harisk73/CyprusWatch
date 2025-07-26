@@ -1,17 +1,23 @@
 import { useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { useWebSocket } from "@/hooks/use-websocket";
 import NavigationHeader from "@/components/navigation-header";
 import EmergencyBanner from "@/components/emergency-banner";
 import DashboardOverview from "@/components/dashboard-overview";
 import InteractiveMap from "@/components/interactive-map";
 import AlertsNotifications from "@/components/alerts-notifications";
 import EmergencyModal from "@/components/emergency-modal";
-import { isUnauthorizedError } from "@/lib/authUtils";
+import type { User } from "@shared/schema";
 
 export default function Home() {
   const { toast } = useToast();
-  const { isAuthenticated, isLoading } = useAuth();
+  const { user, isAuthenticated, isLoading } = useAuth() as { 
+    user: User | undefined; 
+    isAuthenticated: boolean; 
+    isLoading: boolean; 
+  };
+  const wsStatus = useWebSocket();
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -52,6 +58,8 @@ export default function Home() {
         <InteractiveMap />
         <AlertsNotifications />
       </main>
+
+      <EmergencyModal />
 
       <EmergencyModal />
     </div>

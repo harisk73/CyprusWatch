@@ -15,7 +15,7 @@ import { isUnauthorizedError } from "@/lib/authUtils";
 import type { Village, User } from "@shared/schema";
 
 export default function UserProfile() {
-  const { user } = useAuth();
+  const { user } = useAuth() as { user: User | undefined };
   const { toast } = useToast();
   const queryClient = useQueryClient();
 

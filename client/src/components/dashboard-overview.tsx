@@ -3,10 +3,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Bell, MapPin, Phone, CheckCircle, AlertTriangle } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
-import type { Alert, Village } from "@shared/schema";
+import type { Alert, Village, User } from "@shared/schema";
 
 export default function DashboardOverview() {
-  const { user } = useAuth();
+  const { user } = useAuth() as { user: User | undefined };
 
   const { data: alerts } = useQuery<Alert[]>({
     queryKey: ["/api/alerts"],
@@ -16,96 +16,166 @@ export default function DashboardOverview() {
     queryKey: ["/api/villages"],
   });
 
-  const userVillage = villages?.find(v => v.id === user?.villageId);
   const activeAlerts = alerts?.filter(alert => alert.status === "active") || [];
   const emergencyAlerts = activeAlerts.filter(alert => alert.type === "emergency");
   const warningAlerts = activeAlerts.filter(alert => alert.type === "warning");
 
   return (
-    <section id="dashboard" className="mb-8">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        {/* Active Alerts Card */}
+    <section className="mb-8">
+      <div className="flex justify-between items-center mb-6">
+        <div>
+          <h1 className="text-3xl font-bold text-neutral-700">Emergency Dashboard</h1>
+          <p className="text-neutral-500">
+            Welcome back{user?.firstName ? `, ${user.firstName}` : ''}. Monitor and respond to emergencies in your area.
+          </p>
+        </div>
+        <div className="text-right">
+          <p className="text-sm text-neutral-500">Last updated</p>
+          <p className="text-lg font-semibold text-neutral-700">
+            {new Date().toLocaleTimeString()}
+          </p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        {/* Active Emergencies */}
+        <Card className={emergencyAlerts.length > 0 ? "border-emergency shadow-lg" : ""}>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Active Emergencies</CardTitle>
+            <AlertTriangle className={`h-4 w-4 ${emergencyAlerts.length > 0 ? "text-emergency" : "text-neutral-400"}`} />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-emergency">{emergencyAlerts.length}</div>
+            <p className="text-xs text-neutral-500">
+              {emergencyAlerts.length > 0 ? "Requires immediate attention" : "No active emergencies"}
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* Warnings */}
+        <Card className={warningAlerts.length > 0 ? "border-warning" : ""}>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Active Warnings</CardTitle>
+            <Bell className={`h-4 w-4 ${warningAlerts.length > 0 ? "text-warning" : "text-neutral-400"}`} />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-warning">{warningAlerts.length}</div>
+            <p className="text-xs text-neutral-500">
+              {warningAlerts.length > 0 ? "Monitor situation" : "No active warnings"}
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* Villages Covered */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Alerts</CardTitle>
-            <Bell className="h-4 w-4 text-warning" />
+            <CardTitle className="text-sm font-medium">Villages Covered</CardTitle>
+            <MapPin className="h-4 w-4 text-neutral-400" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-primary">{villages?.length || 0}</div>
+            <p className="text-xs text-neutral-500">
+              Across Cyprus
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* System Status */}
+        <Card className="border-success">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">System Status</CardTitle>
+            <CheckCircle className="h-4 w-4 text-success" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-success">Online</div>
+            <p className="text-xs text-neutral-500">
+              All systems operational
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Quick Actions */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-xl">Recent Activity</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {activeAlerts.length > 0 ? (
+              <div className="space-y-3">
+                {activeAlerts.slice(0, 3).map((alert) => (
+                  <div key={alert.id} className="flex items-center justify-between p-3 bg-neutral-50 rounded-lg">
+                    <div className="flex items-center space-x-3">
+                      <div className={`w-2 h-2 rounded-full ${
+                        alert.type === "emergency" ? "bg-emergency" : 
+                        alert.type === "warning" ? "bg-warning" : "bg-info"
+                      }`}></div>
+                      <div>
+                        <p className="font-medium text-sm">{alert.title}</p>
+                        <p className="text-xs text-neutral-500">
+                          {alert.targetVillages?.length || 0} village{(alert.targetVillages?.length || 0) !== 1 ? 's' : ''}
+                        </p>
+                      </div>
+                    </div>
+                    <Badge 
+                      variant="secondary" 
+                      className={
+                        alert.type === "emergency" ? "bg-emergency/20 text-emergency" :
+                        alert.type === "warning" ? "bg-warning/20 text-warning" : "bg-info/20 text-info"
+                      }
+                    >
+                      {alert.type}
+                    </Badge>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8 text-neutral-500">
+                <Bell className="h-12 w-12 mx-auto mb-4 text-neutral-300" />
+                <p>No recent alerts</p>
+                <p className="text-sm">All quiet in your area</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-xl">Quick Actions</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              {emergencyAlerts.length > 0 && (
-                <div className="flex items-center space-x-3 p-3 bg-emergency/10 rounded-lg">
-                  <div className="w-3 h-3 bg-emergency rounded-full"></div>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-neutral-600">Emergency Alert</p>
-                    <p className="text-xs text-neutral-500">{emergencyAlerts.length} active</p>
+              <div className="p-4 bg-gradient-to-r from-primary/10 to-primary/5 rounded-lg border border-primary/20">
+                <div className="flex items-center space-x-3">
+                  <MapPin className="h-8 w-8 text-primary" />
+                  <div>
+                    <h4 className="font-semibold text-neutral-700">Report Emergency</h4>
+                    <p className="text-sm text-neutral-500">Click on the map or use the emergency button</p>
+                  </div>
+                </div>
+              </div>
+
+              {user?.role === "admin" && (
+                <div className="p-4 bg-gradient-to-r from-warning/10 to-warning/5 rounded-lg border border-warning/20">
+                  <div className="flex items-center space-x-3">
+                    <Bell className="h-8 w-8 text-warning" />
+                    <div>
+                      <h4 className="font-semibold text-neutral-700">Send Alert</h4>
+                      <p className="text-sm text-neutral-500">Broadcast alerts to villages in your area</p>
+                    </div>
                   </div>
                 </div>
               )}
-              {warningAlerts.length > 0 && (
-                <div className="flex items-center space-x-3 p-3 bg-warning/10 rounded-lg">
-                  <div className="w-3 h-3 bg-warning rounded-full"></div>
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-neutral-600">Weather Warning</p>
-                    <p className="text-xs text-neutral-500">{warningAlerts.length} active</p>
+
+              <div className="p-4 bg-gradient-to-r from-info/10 to-info/5 rounded-lg border border-info/20">
+                <div className="flex items-center space-x-3">
+                  <Phone className="h-8 w-8 text-info" />
+                  <div>
+                    <h4 className="font-semibold text-neutral-700">Emergency Contacts</h4>
+                    <p className="text-sm text-neutral-500">Access important contact numbers</p>
                   </div>
                 </div>
-              )}
-              {activeAlerts.length === 0 && (
-                <div className="text-center py-4">
-                  <CheckCircle className="h-8 w-8 text-success mx-auto mb-2" />
-                  <p className="text-sm text-neutral-500">No emergency alerts in your area</p>
-                </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Your Village Card */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Your Village</CardTitle>
-            <MapPin className="h-4 w-4 text-primary" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-center">
-              <p className="text-xl font-bold text-primary">{userVillage?.name || "Not Set"}</p>
-              <p className="text-sm text-neutral-500">{userVillage?.district || ""}</p>
-              <div className="mt-4 flex items-center justify-center space-x-2">
-                <Badge variant="secondary" className="bg-success/10 text-success border-success/20">
-                  <CheckCircle className="w-3 h-3 mr-1" />
-                  Status: Safe
-                </Badge>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Emergency Contacts Card */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Emergency Contacts</CardTitle>
-            <Phone className="h-4 w-4 text-emergency" />
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-neutral-500">Police</span>
-                <span className="text-sm font-mono font-medium">199</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-neutral-500">Fire Department</span>
-                <span className="text-sm font-mono font-medium">199</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-neutral-500">Medical Emergency</span>
-                <span className="text-sm font-mono font-medium">199</span>
-              </div>
-              <hr className="my-2" />
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-neutral-500">Your Emergency Contact</span>
-                <span className="text-sm font-medium">
-                  {user?.emergencyContactPhone || "Not Set"}
-                </span>
               </div>
             </div>
           </CardContent>

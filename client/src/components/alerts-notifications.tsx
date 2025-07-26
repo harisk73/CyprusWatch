@@ -4,11 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { AlertTriangle, Info, MapPin, Users, Clock } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
-import AdminPanel from "./admin-panel";
-import type { Alert } from "@shared/schema";
+import AdminPanel from "@/components/admin-panel";
+import type { Alert, User } from "@shared/schema";
 
 export default function AlertsNotifications() {
-  const { user } = useAuth();
+  const { user } = useAuth() as { user: User | undefined };
 
   const { data: alerts } = useQuery<Alert[]>({
     queryKey: ["/api/alerts"],
@@ -76,7 +76,7 @@ export default function AlertsNotifications() {
                         <h4 className="font-semibold text-neutral-600">{alert.title}</h4>
                         <span className="text-xs text-neutral-500 flex items-center">
                           <Clock className="w-3 h-3 mr-1" />
-                          {getTimeAgo(alert.createdAt!)}
+                          {getTimeAgo(alert.createdAt as string)}
                         </span>
                       </div>
                       <p className="text-sm text-neutral-600 mb-2">{alert.message}</p>
@@ -85,7 +85,7 @@ export default function AlertsNotifications() {
                           <MapPin className="w-3 h-3 mr-1" />
                           {alert.targetVillages?.length || 0} village{(alert.targetVillages?.length || 0) !== 1 ? 's' : ''}
                         </span>
-                        <Badge variant="secondary" size="sm" className={
+                        <Badge variant="secondary" className={
                           alert.status === "active" ? "bg-warning/20 text-warning" : "bg-success/20 text-success"
                         }>
                           {alert.status === "active" ? "Active" : "Resolved"}
