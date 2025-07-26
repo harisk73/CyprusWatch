@@ -1,12 +1,16 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Bell, MapPin, Phone, CheckCircle, AlertTriangle } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import EmergencyContactsModal from "@/components/emergency-contacts-modal";
 import type { Alert, Village, User } from "@shared/schema";
 
 export default function DashboardOverview() {
   const { user } = useAuth() as { user: User | undefined };
+  const [contactsModalOpen, setContactsModalOpen] = useState(false);
 
   const { data: alerts } = useQuery<Alert[]>({
     queryKey: ["/api/alerts"],
@@ -146,41 +150,62 @@ export default function DashboardOverview() {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              <div className="p-4 bg-gradient-to-r from-primary/10 to-primary/5 rounded-lg border border-primary/20">
+              <Button
+                variant="outline"
+                className="w-full p-4 h-auto bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20 hover:bg-primary/10"
+                onClick={() => {
+                  // Trigger the floating emergency button
+                  const emergencyButton = document.querySelector('[title="Quick Emergency Report"]') as HTMLButtonElement;
+                  if (emergencyButton) {
+                    emergencyButton.click();
+                  }
+                }}
+              >
                 <div className="flex items-center space-x-3">
                   <MapPin className="h-8 w-8 text-primary" />
-                  <div>
+                  <div className="text-left">
                     <h4 className="font-semibold text-neutral-700">Report Emergency</h4>
-                    <p className="text-sm text-neutral-500">Click on the map or use the emergency button</p>
+                    <p className="text-sm text-neutral-500">Click to report an emergency incident</p>
                   </div>
                 </div>
-              </div>
+              </Button>
 
-              {user?.role === "admin" && (
-                <div className="p-4 bg-gradient-to-r from-warning/10 to-warning/5 rounded-lg border border-warning/20">
+              {user?.isVillageAdmin && (
+                <Button
+                  variant="outline"
+                  className="w-full p-4 h-auto bg-gradient-to-r from-warning/10 to-warning/5 border-warning/20 hover:bg-warning/10"
+                  onClick={() => {/* TODO: Add admin alert functionality */}}
+                >
                   <div className="flex items-center space-x-3">
                     <Bell className="h-8 w-8 text-warning" />
-                    <div>
+                    <div className="text-left">
                       <h4 className="font-semibold text-neutral-700">Send Alert</h4>
                       <p className="text-sm text-neutral-500">Broadcast alerts to villages in your area</p>
                     </div>
                   </div>
-                </div>
+                </Button>
               )}
 
-              <div className="p-4 bg-gradient-to-r from-info/10 to-info/5 rounded-lg border border-info/20">
+              <Button
+                variant="outline"
+                className="w-full p-4 h-auto bg-gradient-to-r from-info/10 to-info/5 border-info/20 hover:bg-info/10"
+                onClick={() => setContactsModalOpen(true)}
+              >
                 <div className="flex items-center space-x-3">
                   <Phone className="h-8 w-8 text-info" />
-                  <div>
+                  <div className="text-left">
                     <h4 className="font-semibold text-neutral-700">Emergency Contacts</h4>
                     <p className="text-sm text-neutral-500">Access important contact numbers</p>
                   </div>
                 </div>
-              </div>
+              </Button>
             </div>
           </CardContent>
         </Card>
       </div>
+
+      {/* Modals */}
+      <EmergencyContactsModal open={contactsModalOpen} onOpenChange={setContactsModalOpen} />
     </section>
   );
 }

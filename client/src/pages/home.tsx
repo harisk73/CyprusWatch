@@ -60,8 +60,6 @@ export default function Home() {
       </main>
 
       <EmergencyModal />
-
-      <EmergencyModal />
     </div>
   );
 }
