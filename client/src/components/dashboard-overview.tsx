@@ -165,6 +165,21 @@ export default function DashboardOverview() {
                   </div>
                 </Button>
               </Link>
+              
+              <Link href="/emergency-services" className="w-full">
+                <Button
+                  variant="outline"
+                  className="w-full p-4 h-auto bg-gradient-to-r from-blue-50 to-blue-25 border-blue-200 hover:bg-blue-100"
+                >
+                  <div className="flex items-center space-x-3">
+                    <Phone className="h-8 w-8 text-blue-600" />
+                    <div className="text-left">
+                      <h4 className="font-semibold text-neutral-700">Emergency Services</h4>
+                      <p className="text-sm text-neutral-500">Call Cyprus emergency services</p>
+                    </div>
+                  </div>
+                </Button>
+              </Link>
 
               {user?.isVillageAdmin && (
                 <Button

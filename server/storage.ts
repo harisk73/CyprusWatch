@@ -4,6 +4,8 @@ import {
   emergencyPins,
   alerts,
   alertDeliveries,
+  emergencyServices,
+  emergencyServiceCalls,
   type User,
   type UpsertUser,
   type Village,
@@ -14,6 +16,10 @@ import {
   type InsertAlert,
   type AlertDelivery,
   type InsertAlertDelivery,
+  type EmergencyService,
+  type InsertEmergencyService,
+  type EmergencyServiceCall,
+  type InsertEmergencyServiceCall,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, inArray, and, desc } from "drizzle-orm";
@@ -47,6 +53,12 @@ export interface IStorage {
 
   // Admin operations
   getUsersByVillages(villageIds: string[]): Promise<User[]>;
+
+  // Emergency services operations
+  getEmergencyServices(): Promise<EmergencyService[]>;
+  createEmergencyService(service: InsertEmergencyService): Promise<EmergencyService>;
+  logEmergencyServiceCall(call: InsertEmergencyServiceCall): Promise<EmergencyServiceCall>;
+  getEmergencyServiceCallsByUser(userId: string): Promise<EmergencyServiceCall[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -209,6 +221,35 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(users)
       .where(inArray(users.villageId, villageIds));
+  }
+
+  // Emergency services operations
+  async getEmergencyServices(): Promise<EmergencyService[]> {
+    return await db.select().from(emergencyServices);
+  }
+
+  async createEmergencyService(serviceData: InsertEmergencyService): Promise<EmergencyService> {
+    const [service] = await db
+      .insert(emergencyServices)
+      .values(serviceData)
+      .returning();
+    return service;
+  }
+
+  async logEmergencyServiceCall(callData: InsertEmergencyServiceCall): Promise<EmergencyServiceCall> {
+    const [call] = await db
+      .insert(emergencyServiceCalls)
+      .values(callData)
+      .returning();
+    return call;
+  }
+
+  async getEmergencyServiceCallsByUser(userId: string): Promise<EmergencyServiceCall[]> {
+    return await db
+      .select()
+      .from(emergencyServiceCalls)
+      .where(eq(emergencyServiceCalls.userId, userId))
+      .orderBy(desc(emergencyServiceCalls.callInitiated));
   }
 }
 

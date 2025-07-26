@@ -121,6 +121,31 @@ export const alertDeliveries = pgTable("alert_deliveries", {
   readAt: timestamp("read_at"),
 });
 
+// Emergency services table
+export const emergencyServices = pgTable("emergency_services", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  name: varchar("name").notNull(),
+  type: varchar("type").notNull(), // police, fire, ambulance, general
+  phone: varchar("phone").notNull(),
+  shortCode: varchar("short_code"), // e.g., "112", "199"
+  description: text("description"),
+  district: varchar("district"), // for district-specific services
+  isEmergency: boolean("is_emergency").default(true),
+  isPrimary: boolean("is_primary").default(false), // main emergency numbers
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Emergency service calls log (for tracking emergency calls made through the app)
+export const emergencyServiceCalls = pgTable("emergency_service_calls", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull(),
+  serviceId: varchar("service_id").notNull(),
+  emergencyPinId: varchar("emergency_pin_id"), // if call relates to a reported incident
+  callInitiated: timestamp("call_initiated").defaultNow(),
+  userLocation: jsonb("user_location"), // lat/lng when call was made
+  notes: text("notes"),
+});
+
 // Relations
 export const usersRelations = relations(users, ({ one, many }) => ({
   village: one(villages, {
@@ -162,6 +187,21 @@ export const alertDeliveriesRelations = relations(alertDeliveries, ({ one }) => 
   }),
 }));
 
+export const emergencyServiceCallsRelations = relations(emergencyServiceCalls, ({ one }) => ({
+  user: one(users, {
+    fields: [emergencyServiceCalls.userId],
+    references: [users.id],
+  }),
+  service: one(emergencyServices, {
+    fields: [emergencyServiceCalls.serviceId],
+    references: [emergencyServices.id],
+  }),
+  emergencyPin: one(emergencyPins, {
+    fields: [emergencyServiceCalls.emergencyPinId],
+    references: [emergencyPins.id],
+  }),
+}));
+
 // Insert schemas
 export const upsertUserSchema = createInsertSchema(users).omit({
   createdAt: true,
@@ -190,6 +230,16 @@ export const insertAlertDeliverySchema = createInsertSchema(alertDeliveries).omi
   deliveredAt: true,
 });
 
+export const insertEmergencyServiceSchema = createInsertSchema(emergencyServices).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertEmergencyServiceCallSchema = createInsertSchema(emergencyServiceCalls).omit({
+  id: true,
+  callInitiated: true,
+});
+
 // Types
 export type UpsertUser = z.infer<typeof upsertUserSchema>;
 export type User = typeof users.$inferSelect;
@@ -201,3 +251,7 @@ export type Alert = typeof alerts.$inferSelect;
 export type InsertAlert = z.infer<typeof insertAlertSchema>;
 export type AlertDelivery = typeof alertDeliveries.$inferSelect;
 export type InsertAlertDelivery = z.infer<typeof insertAlertDeliverySchema>;
+export type EmergencyService = typeof emergencyServices.$inferSelect;
+export type InsertEmergencyService = z.infer<typeof insertEmergencyServiceSchema>;
+export type EmergencyServiceCall = typeof emergencyServiceCalls.$inferSelect;
+export type InsertEmergencyServiceCall = z.infer<typeof insertEmergencyServiceCallSchema>;
