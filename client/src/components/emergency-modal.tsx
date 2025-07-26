@@ -1,34 +1,108 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { AlertTriangle, Send } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
+import { AlertTriangle, Send, MapPin, Crosshair, Map } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { isUnauthorizedError } from "@/lib/authUtils";
 
-export default function EmergencyModal() {
-  const [open, setOpen] = useState(false);
+interface EmergencyModalProps {
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+}
+
+export default function EmergencyModal({ open, onOpenChange }: EmergencyModalProps = {}) {
+  const [isOpen, setIsOpen] = useState(false);
   const [reportForm, setReportForm] = useState({
     type: "",
     location: "",
     description: "",
+    coordinates: { lat: "", lng: "" },
   });
+  const [isGettingLocation, setIsGettingLocation] = useState(false);
+  const [locationMethod, setLocationMethod] = useState<"manual" | "gps" | "map">("manual");
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
+  const actualOpen = open !== undefined ? open : isOpen;
+  const actualOnOpenChange = onOpenChange || setIsOpen;
+
+  // Function to get user's current location
+  const getCurrentLocation = () => {
+    setIsGettingLocation(true);
+    
+    if (!navigator.geolocation) {
+      toast({
+        title: "Location Not Supported",
+        description: "Your browser doesn't support location services.",
+        variant: "destructive",
+      });
+      setIsGettingLocation(false);
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        setReportForm(prev => ({
+          ...prev,
+          coordinates: { lat: latitude.toString(), lng: longitude.toString() },
+          location: `GPS Location: ${latitude.toFixed(6)}, ${longitude.toFixed(6)}`
+        }));
+        setLocationMethod("gps");
+        setIsGettingLocation(false);
+        toast({
+          title: "Location Found",
+          description: "Your current location has been captured.",
+        });
+      },
+      (error) => {
+        setIsGettingLocation(false);
+        let errorMessage = "Unable to get your location.";
+        
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            errorMessage = "Location access denied. Please enable location permissions.";
+            break;
+          case error.POSITION_UNAVAILABLE:
+            errorMessage = "Location information unavailable.";
+            break;
+          case error.TIMEOUT:
+            errorMessage = "Location request timed out.";
+            break;
+        }
+        
+        toast({
+          title: "Location Error",
+          description: errorMessage,
+          variant: "destructive",
+        });
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 60000
+      }
+    );
+  };
+
   const createReportMutation = useMutation({
     mutationFn: async (reportData: any) => {
-      // For now, we'll use default coordinates (center of Cyprus)
-      // In a real app, we'd get user's current location
+      // Use provided coordinates or default to center of Cyprus
+      const latitude = reportData.coordinates.lat || "35.1264";
+      const longitude = reportData.coordinates.lng || "33.4299";
+      
       const res = await apiRequest("POST", "/api/emergency-pins", {
-        ...reportData,
-        latitude: "35.1264",
-        longitude: "33.4299",
+        type: reportData.type,
+        location: reportData.location,
+        description: reportData.description,
+        latitude,
+        longitude,
       });
       return res.json();
     },
@@ -38,8 +112,9 @@ export default function EmergencyModal() {
         title: "Emergency Report Submitted",
         description: "Your emergency report has been submitted successfully. Authorities have been notified.",
       });
-      setReportForm({ type: "", location: "", description: "" });
-      setOpen(false);
+      setReportForm({ type: "", location: "", description: "", coordinates: { lat: "", lng: "" } });
+      setLocationMethod("manual");
+      actualOnOpenChange(false);
     },
     onError: (error) => {
       if (isUnauthorizedError(error)) {
@@ -80,7 +155,7 @@ export default function EmergencyModal() {
     <>
       {/* Floating Action Button */}
       <div className="fixed bottom-6 right-6 z-40">
-        <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog open={actualOpen} onOpenChange={actualOnOpenChange}>
           <DialogTrigger asChild>
             <Button
               size="lg"
@@ -91,16 +166,16 @@ export default function EmergencyModal() {
             </Button>
           </DialogTrigger>
 
-          <DialogContent className="sm:max-w-md">
+          <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <div className="text-center mb-4">
                 <AlertTriangle className="h-12 w-12 text-emergency mx-auto mb-4" />
                 <DialogTitle className="text-xl font-bold text-neutral-600">
                   Quick Emergency Report
                 </DialogTitle>
-                <p className="text-neutral-500 text-sm mt-2">
-                  Report an emergency in your area quickly
-                </p>
+                <DialogDescription className="text-neutral-500 text-sm mt-2">
+                  Report an emergency in your area quickly. Your location helps emergency services respond faster.
+                </DialogDescription>
               </div>
             </DialogHeader>
 
@@ -127,12 +202,68 @@ export default function EmergencyModal() {
 
               <div>
                 <Label htmlFor="location">Location</Label>
-                <Input
-                  id="location"
-                  value={reportForm.location}
-                  onChange={(e) => setReportForm(prev => ({ ...prev, location: e.target.value }))}
-                  placeholder="Describe the location..."
-                />
+                <div className="space-y-3">
+                  {/* Location Method Selection */}
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      variant={locationMethod === "manual" ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setLocationMethod("manual")}
+                      className="flex-1"
+                    >
+                      <MapPin className="w-4 h-4 mr-1" />
+                      Manual
+                    </Button>
+                    <Button
+                      type="button"
+                      variant={locationMethod === "gps" ? "default" : "outline"}
+                      size="sm"
+                      onClick={getCurrentLocation}
+                      disabled={isGettingLocation}
+                      className="flex-1"
+                    >
+                      <Crosshair className="w-4 h-4 mr-1" />
+                      {isGettingLocation ? "Getting..." : "GPS"}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant={locationMethod === "map" ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => {
+                        setLocationMethod("map");
+                        toast({
+                          title: "Map Selection",
+                          description: "Click on the main map to select a location, then come back to this form.",
+                        });
+                      }}
+                      className="flex-1"
+                    >
+                      <Map className="w-4 h-4 mr-1" />
+                      Map
+                    </Button>
+                  </div>
+
+                  {/* Location Input */}
+                  <Input
+                    id="location"
+                    value={reportForm.location}
+                    onChange={(e) => setReportForm(prev => ({ ...prev, location: e.target.value }))}
+                    placeholder={
+                      locationMethod === "manual" ? "Describe the location..." :
+                      locationMethod === "gps" ? "GPS location will appear here..." :
+                      "Click on map to select location..."
+                    }
+                    readOnly={locationMethod === "gps"}
+                  />
+
+                  {/* Coordinates Display */}
+                  {(reportForm.coordinates.lat && reportForm.coordinates.lng) && (
+                    <div className="text-xs text-neutral-500 bg-neutral-50 p-2 rounded">
+                      <strong>Coordinates:</strong> {reportForm.coordinates.lat}, {reportForm.coordinates.lng}
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div>
@@ -152,7 +283,7 @@ export default function EmergencyModal() {
                   type="button"
                   variant="outline"
                   className="flex-1"
-                  onClick={() => setOpen(false)}
+                  onClick={() => actualOnOpenChange(false)}
                 >
                   Cancel
                 </Button>
