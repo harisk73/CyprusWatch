@@ -137,10 +137,10 @@ export default function EmergencyReport() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!reportForm.type || !reportForm.location.trim() || !reportForm.description.trim()) {
+    if (!reportForm.type || !reportForm.location.trim()) {
       toast({
-        title: "Validation Error",
-        description: "Please fill in all fields.",
+        title: "Validation Error", 
+        description: "Please select emergency type and provide location.",
         variant: "destructive",
       });
       return;
@@ -206,6 +206,29 @@ export default function EmergencyReport() {
                 <AlertTriangle className="h-5 w-5 text-emergency" />
                 <span>Emergency Details</span>
               </CardTitle>
+              
+              {/* Color Legend */}
+              <div className="mt-4 p-3 bg-neutral-50 rounded-lg">
+                <p className="text-sm font-medium text-neutral-600 mb-2">Emergency Types & Colors:</p>
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full" style={{backgroundColor: '#D32F2F'}}></div>
+                    <span>🔥 Fire</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full" style={{backgroundColor: '#F57C00'}}></div>
+                    <span>💨 Smoke</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full" style={{backgroundColor: '#1976D2'}}></div>
+                    <span>🌊 Flood</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full" style={{backgroundColor: '#7B1FA2'}}></div>
+                    <span>🚗 Accident</span>
+                  </div>
+                </div>
+              </div>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-6">
@@ -287,7 +310,7 @@ export default function EmergencyReport() {
 
                 {/* Description */}
                 <div>
-                  <Label htmlFor="description">Description *</Label>
+                  <Label htmlFor="description">Description (Optional)</Label>
                   <Textarea
                     id="description"
                     value={reportForm.description}
