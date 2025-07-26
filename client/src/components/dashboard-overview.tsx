@@ -2,7 +2,15 @@ import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Bell, MapPin, Phone, CheckCircle, AlertTriangle, Route, MessageSquare } from "lucide-react";
+import {
+  Bell,
+  MapPin,
+  Phone,
+  CheckCircle,
+  AlertTriangle,
+  Route,
+  MessageSquare,
+} from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/contexts/language-context";
 import { Link } from "wouter";
@@ -20,21 +28,32 @@ export default function DashboardOverview() {
     queryKey: ["/api/villages"],
   });
 
-  const activeAlerts = alerts?.filter(alert => alert.status === "active") || [];
-  const emergencyAlerts = activeAlerts.filter(alert => alert.type === "emergency");
-  const warningAlerts = activeAlerts.filter(alert => alert.type === "warning");
+  const activeAlerts =
+    alerts?.filter((alert) => alert.status === "active") || [];
+  const emergencyAlerts = activeAlerts.filter(
+    (alert) => alert.type === "emergency",
+  );
+  const warningAlerts = activeAlerts.filter(
+    (alert) => alert.type === "warning",
+  );
 
   return (
     <section className="mb-8">
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-3xl font-bold text-neutral-700">{t('dashboard.title')}</h1>
+          <h1 className="text-3xl font-bold text-neutral-700">
+            {t("dashboard.title")}
+          </h1>
           <p className="text-neutral-500">
-            {t('dashboard.welcome')}{user?.firstName ? `, ${user.firstName}` : ''}. {t('dashboard.subtitle')}
+            {t("dashboard.welcome")}
+            {user?.firstName ? `, ${user.firstName}` : ""}.{" "}
+            {t("dashboard.subtitle")}
           </p>
         </div>
         <div className="text-right">
-          <p className="text-sm text-neutral-500">{t('dashboard.lastUpdated')}</p>
+          <p className="text-sm text-neutral-500">
+            {t("dashboard.lastUpdated")}
+          </p>
           <p className="text-lg font-semibold text-neutral-700">
             {new Date().toLocaleTimeString()}
           </p>
@@ -42,15 +61,27 @@ export default function DashboardOverview() {
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {/* Active Emergencies */}
-        <Card className={emergencyAlerts.length > 0 ? "border-emergency shadow-lg" : ""}>
+        <Card
+          className={
+            emergencyAlerts.length > 0 ? "border-emergency shadow-lg" : ""
+          }
+        >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">{t('dashboard.activeEmergencies')}</CardTitle>
-            <AlertTriangle className={`h-4 w-4 ${emergencyAlerts.length > 0 ? "text-emergency" : "text-neutral-400"}`} />
+            <CardTitle className="text-sm font-medium">
+              {t("dashboard.activeEmergencies")}
+            </CardTitle>
+            <AlertTriangle
+              className={`h-4 w-4 ${emergencyAlerts.length > 0 ? "text-emergency" : "text-neutral-400"}`}
+            />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-emergency">{emergencyAlerts.length}</div>
+            <div className="text-2xl font-bold text-emergency">
+              {emergencyAlerts.length}
+            </div>
             <p className="text-xs text-neutral-500">
-              {emergencyAlerts.length > 0 ? t('dashboard.requiresAttention') : t('dashboard.noActiveEmergencies')}
+              {emergencyAlerts.length > 0
+                ? t("dashboard.requiresAttention")
+                : t("dashboard.noActiveEmergencies")}
             </p>
           </CardContent>
         </Card>
@@ -58,13 +89,21 @@ export default function DashboardOverview() {
         {/* Warnings */}
         <Card className={warningAlerts.length > 0 ? "border-warning" : ""}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">{t('dashboard.activeWarnings')}</CardTitle>
-            <Bell className={`h-4 w-4 ${warningAlerts.length > 0 ? "text-warning" : "text-neutral-400"}`} />
+            <CardTitle className="text-sm font-medium">
+              {t("dashboard.activeWarnings")}
+            </CardTitle>
+            <Bell
+              className={`h-4 w-4 ${warningAlerts.length > 0 ? "text-warning" : "text-neutral-400"}`}
+            />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-warning">{warningAlerts.length}</div>
+            <div className="text-2xl font-bold text-warning">
+              {warningAlerts.length}
+            </div>
             <p className="text-xs text-neutral-500">
-              {warningAlerts.length > 0 ? t('dashboard.monitorSituation') : t('dashboard.noActiveWarnings')}
+              {warningAlerts.length > 0
+                ? t("dashboard.monitorSituation")
+                : t("dashboard.noActiveWarnings")}
             </p>
           </CardContent>
         </Card>
@@ -72,13 +111,17 @@ export default function DashboardOverview() {
         {/* Villages Covered */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">{t('dashboard.villagesCovered')}</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              {t("dashboard.villagesCovered")}
+            </CardTitle>
             <MapPin className="h-4 w-4 text-neutral-400" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-primary">{villages?.length || 0}</div>
+            <div className="text-2xl font-bold text-primary">
+              {villages?.length || 0}
+            </div>
             <p className="text-xs text-neutral-500">
-              {t('dashboard.acrossCyprus')}
+              {t("dashboard.acrossCyprus")}
             </p>
           </CardContent>
         </Card>
@@ -86,13 +129,17 @@ export default function DashboardOverview() {
         {/* System Status */}
         <Card className="border-success">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">{t('dashboard.systemStatus')}</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              {t("dashboard.systemStatus")}
+            </CardTitle>
             <CheckCircle className="h-4 w-4 text-success" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-success">{t('dashboard.online')}</div>
+            <div className="text-2xl font-bold text-success">
+              {t("dashboard.online")}
+            </div>
             <p className="text-xs text-neutral-500">
-              {t('dashboard.allSystemsOperational')}
+              {t("dashboard.allSystemsOperational")}
             </p>
           </CardContent>
         </Card>
@@ -107,24 +154,36 @@ export default function DashboardOverview() {
             {activeAlerts.length > 0 ? (
               <div className="space-y-3">
                 {activeAlerts.slice(0, 3).map((alert) => (
-                  <div key={alert.id} className="flex items-center justify-between p-3 bg-neutral-50 rounded-lg">
+                  <div
+                    key={alert.id}
+                    className="flex items-center justify-between p-3 bg-neutral-50 rounded-lg"
+                  >
                     <div className="flex items-center space-x-3">
-                      <div className={`w-2 h-2 rounded-full ${
-                        alert.type === "emergency" ? "bg-emergency" : 
-                        alert.type === "warning" ? "bg-warning" : "bg-info"
-                      }`}></div>
+                      <div
+                        className={`w-2 h-2 rounded-full ${
+                          alert.type === "emergency"
+                            ? "bg-emergency"
+                            : alert.type === "warning"
+                              ? "bg-warning"
+                              : "bg-info"
+                        }`}
+                      ></div>
                       <div>
                         <p className="font-medium text-sm">{alert.title}</p>
                         <p className="text-xs text-neutral-500">
-                          {alert.targetVillages?.length || 0} village{(alert.targetVillages?.length || 0) !== 1 ? 's' : ''}
+                          {alert.targetVillages?.length || 0} village
+                          {(alert.targetVillages?.length || 0) !== 1 ? "s" : ""}
                         </p>
                       </div>
                     </div>
-                    <Badge 
-                      variant="secondary" 
+                    <Badge
+                      variant="secondary"
                       className={
-                        alert.type === "emergency" ? "bg-emergency/20 text-emergency" :
-                        alert.type === "warning" ? "bg-warning/20 text-warning" : "bg-info/20 text-info"
+                        alert.type === "emergency"
+                          ? "bg-emergency/20 text-emergency"
+                          : alert.type === "warning"
+                            ? "bg-warning/20 text-warning"
+                            : "bg-info/20 text-info"
                       }
                     >
                       {alert.type}
@@ -135,8 +194,8 @@ export default function DashboardOverview() {
             ) : (
               <div className="text-center py-8 text-neutral-500">
                 <Bell className="h-12 w-12 mx-auto mb-4 text-neutral-300" />
-                <p>Δεν υπάρχουν πρόσφατες ειδοποιήσεις</p>
-                <p className="text-sm">All quiet in your area</p>
+                <p>NO RECENT ALERTS</p>
+                <p className="text-sm">All quiet in your area !</p>
               </div>
             )}
           </CardContent>
@@ -156,13 +215,17 @@ export default function DashboardOverview() {
                   <div className="flex items-center space-x-3">
                     <MapPin className="h-8 w-8 text-primary" />
                     <div className="text-left">
-                      <h4 className="font-semibold text-neutral-700">Report Emergency</h4>
-                      <p className="text-sm text-neutral-500">Open emergency reporting page</p>
+                      <h4 className="font-semibold text-neutral-700">
+                        Report Emergency
+                      </h4>
+                      <p className="text-sm text-neutral-500">
+                        Open emergency reporting page
+                      </p>
                     </div>
                   </div>
                 </Button>
               </Link>
-              
+
               <Link href="/emergency-services" className="w-full">
                 <Button
                   variant="outline"
@@ -171,13 +234,17 @@ export default function DashboardOverview() {
                   <div className="flex items-center space-x-3">
                     <Phone className="h-8 w-8 text-blue-600" />
                     <div className="text-left">
-                      <h4 className="font-semibold text-neutral-700">Emergency Services</h4>
-                      <p className="text-sm text-neutral-500">Call Cyprus emergency services</p>
+                      <h4 className="font-semibold text-neutral-700">
+                        Emergency Services
+                      </h4>
+                      <p className="text-sm text-neutral-500">
+                        Call Cyprus emergency services
+                      </p>
                     </div>
                   </div>
                 </Button>
               </Link>
-              
+
               {user?.isVillageAdmin && (
                 <Link href="/evacuation-planning" className="w-full">
                   <Button
@@ -187,8 +254,12 @@ export default function DashboardOverview() {
                     <div className="flex items-center space-x-3">
                       <Route className="h-8 w-8 text-purple-600" />
                       <div className="text-left">
-                        <h4 className="font-semibold text-neutral-700">Evacuation Planning</h4>
-                        <p className="text-sm text-neutral-500">Manage evacuation routes (Admin)</p>
+                        <h4 className="font-semibold text-neutral-700">
+                          Evacuation Planning
+                        </h4>
+                        <p className="text-sm text-neutral-500">
+                          Manage evacuation routes (Admin)
+                        </p>
                       </div>
                     </div>
                   </Button>
@@ -199,13 +270,19 @@ export default function DashboardOverview() {
                 <Button
                   variant="outline"
                   className="w-full p-4 h-auto bg-gradient-to-r from-warning/10 to-warning/5 border-warning/20 hover:bg-warning/10"
-                  onClick={() => {/* TODO: Add admin alert functionality */}}
+                  onClick={() => {
+                    /* TODO: Add admin alert functionality */
+                  }}
                 >
                   <div className="flex items-center space-x-3">
                     <Bell className="h-8 w-8 text-warning" />
                     <div className="text-left">
-                      <h4 className="font-semibold text-neutral-700">Send Alert</h4>
-                      <p className="text-sm text-neutral-500">Broadcast alerts to villages in your area</p>
+                      <h4 className="font-semibold text-neutral-700">
+                        Send Alert
+                      </h4>
+                      <p className="text-sm text-neutral-500">
+                        Broadcast alerts to villages in your area
+                      </p>
                     </div>
                   </div>
                 </Button>
@@ -220,8 +297,12 @@ export default function DashboardOverview() {
                     <div className="flex items-center space-x-3">
                       <MessageSquare className="h-8 w-8 text-green-600" />
                       <div className="text-left">
-                        <h4 className="font-semibold text-neutral-700">SMS Alerts</h4>
-                        <p className="text-sm text-neutral-500">Send emergency SMS notifications</p>
+                        <h4 className="font-semibold text-neutral-700">
+                          SMS Alerts
+                        </h4>
+                        <p className="text-sm text-neutral-500">
+                          Send emergency SMS notifications
+                        </p>
                       </div>
                     </div>
                   </Button>
