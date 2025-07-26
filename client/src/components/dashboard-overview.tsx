@@ -148,7 +148,7 @@ export default function DashboardOverview() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle className="text-xl">Recent Activity</CardTitle>
+            <CardTitle className="text-xl">{t("dashboard.recentActivity")}</CardTitle>
           </CardHeader>
           <CardContent>
             {activeAlerts.length > 0 ? (
@@ -171,8 +171,7 @@ export default function DashboardOverview() {
                       <div>
                         <p className="font-medium text-sm">{alert.title}</p>
                         <p className="text-xs text-neutral-500">
-                          {alert.targetVillages?.length || 0} village
-                          {(alert.targetVillages?.length || 0) !== 1 ? "s" : ""}
+                          {alert.targetVillages?.length || 0} {(alert.targetVillages?.length || 0) === 1 ? t("dashboard.village") : t("dashboard.villages")}
                         </p>
                       </div>
                     </div>
@@ -194,8 +193,8 @@ export default function DashboardOverview() {
             ) : (
               <div className="text-center py-8 text-neutral-500">
                 <Bell className="h-12 w-12 mx-auto mb-4 text-neutral-300" />
-                <p>NO RECENT ALERTS</p>
-                <p className="text-sm">All quiet in your area !</p>
+                <p>{t("dashboard.noRecentAlerts")}</p>
+                <p className="text-sm">{t("dashboard.allQuiet")}</p>
               </div>
             )}
           </CardContent>
@@ -203,7 +202,7 @@ export default function DashboardOverview() {
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-xl">Quick Actions</CardTitle>
+            <CardTitle className="text-xl">{t("dashboard.quickActions")}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
@@ -216,10 +215,10 @@ export default function DashboardOverview() {
                     <MapPin className="h-8 w-8 text-primary" />
                     <div className="text-left">
                       <h4 className="font-semibold text-neutral-700">
-                        Report Emergency
+                        {t("dashboard.reportEmergency")}
                       </h4>
                       <p className="text-sm text-neutral-500">
-                        Open emergency reporting page
+                        {t("dashboard.openReportingPage")}
                       </p>
                     </div>
                   </div>
@@ -235,10 +234,10 @@ export default function DashboardOverview() {
                     <Phone className="h-8 w-8 text-blue-600" />
                     <div className="text-left">
                       <h4 className="font-semibold text-neutral-700">
-                        Emergency Services
+                        {t("dashboard.emergencyServices")}
                       </h4>
                       <p className="text-sm text-neutral-500">
-                        Call Cyprus emergency services
+                        {t("dashboard.contactEmergencyServices")}
                       </p>
                     </div>
                   </div>
@@ -255,37 +254,15 @@ export default function DashboardOverview() {
                       <Route className="h-8 w-8 text-purple-600" />
                       <div className="text-left">
                         <h4 className="font-semibold text-neutral-700">
-                          Evacuation Planning
+                          {t("dashboard.evacuationPlanning")}
                         </h4>
                         <p className="text-sm text-neutral-500">
-                          Manage evacuation routes (Admin)
+                          {t("dashboard.manageEvacuationRoutes")}
                         </p>
                       </div>
                     </div>
                   </Button>
                 </Link>
-              )}
-
-              {user?.isVillageAdmin && (
-                <Button
-                  variant="outline"
-                  className="w-full p-4 h-auto bg-gradient-to-r from-warning/10 to-warning/5 border-warning/20 hover:bg-warning/10"
-                  onClick={() => {
-                    /* TODO: Add admin alert functionality */
-                  }}
-                >
-                  <div className="flex items-center space-x-3">
-                    <Bell className="h-8 w-8 text-warning" />
-                    <div className="text-left">
-                      <h4 className="font-semibold text-neutral-700">
-                        Send Alert
-                      </h4>
-                      <p className="text-sm text-neutral-500">
-                        Broadcast alerts to villages in your area
-                      </p>
-                    </div>
-                  </div>
-                </Button>
               )}
 
               {user?.isVillageAdmin && (
@@ -298,16 +275,85 @@ export default function DashboardOverview() {
                       <MessageSquare className="h-8 w-8 text-green-600" />
                       <div className="text-left">
                         <h4 className="font-semibold text-neutral-700">
-                          SMS Alerts
+                          {t("dashboard.smsAlerts")}
                         </h4>
                         <p className="text-sm text-neutral-500">
-                          Send emergency SMS notifications
+                          {t("dashboard.sendEmergencySms")}
                         </p>
                       </div>
                     </div>
                   </Button>
                 </Link>
               )}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Additional Cards Row */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
+        {/* Recent Alerts Card */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">{t("dashboard.recentAlerts")}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {activeAlerts.length > 0 ? (
+              <div className="space-y-2">
+                {activeAlerts.slice(0, 2).map((alert) => (
+                  <div key={alert.id} className="p-2 bg-neutral-50 rounded">
+                    <p className="text-sm font-medium">{alert.title}</p>
+                    <p className="text-xs text-neutral-500">
+                      {t("dashboard.alertLevel")}: {alert.type}
+                    </p>
+                  </div>
+                ))}
+                <Button variant="outline" size="sm" className="w-full mt-2">
+                  {t("dashboard.viewAllAlerts")}
+                </Button>
+              </div>
+            ) : (
+              <div className="text-center py-4 text-neutral-500">
+                <Bell className="h-8 w-8 mx-auto mb-2 text-neutral-300" />
+                <p className="text-sm">{t("dashboard.noRecentAlerts")}</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Village Admin Panel Card */}
+        {user?.isVillageAdmin && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">{t("dashboard.villageAdminPanel")}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                <p className="text-sm text-neutral-600">
+                  {t("dashboard.manageVillageSettings")}
+                </p>
+                <Button variant="outline" className="w-full">
+                  {t("dashboard.accessAdminPanel")}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Emergency Map Card */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">{t("dashboard.emergencyMap")}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              <p className="text-sm text-neutral-600">
+                {t("dashboard.viewMapDesc")}
+              </p>
+              <Button variant="outline" className="w-full">
+                <MapPin className="h-4 w-4 mr-2" />
+                {t("dashboard.openMap")}
+              </Button>
             </div>
           </CardContent>
         </Card>
