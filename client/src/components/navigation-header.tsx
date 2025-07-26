@@ -3,11 +3,14 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { Bell, User, Settings, LogOut, Home, MapPin, AlertTriangle } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { useLanguage } from "@/contexts/language-context";
+import { LanguageSwitcher } from "@/components/language-switcher";
 import { Link, useLocation } from "wouter";
 import type { User as UserType } from "@shared/schema";
 
 export default function NavigationHeader() {
   const { user } = useAuth() as { user: UserType | undefined };
+  const { t } = useLanguage();
   const [location] = useLocation();
 
   return (
@@ -34,7 +37,7 @@ export default function NavigationHeader() {
                   className="flex items-center space-x-2"
                 >
                   <Home className="h-4 w-4" />
-                  <span>Dashboard</span>
+                  <span>{t('nav.dashboard')}</span>
                 </Button>
               </Link>
 
@@ -45,7 +48,7 @@ export default function NavigationHeader() {
                   className="flex items-center space-x-2"
                 >
                   <User className="h-4 w-4" />
-                  <span>Profile</span>
+                  <span>{t('nav.profile')}</span>
                 </Button>
               </Link>
             </nav>
@@ -53,6 +56,8 @@ export default function NavigationHeader() {
 
           {/* User Menu */}
           <div className="flex items-center space-x-4">
+            <LanguageSwitcher />
+            
             {/* Notifications */}
             <Button variant="ghost" size="sm" className="relative">
               <Bell className="h-5 w-5" />
@@ -95,7 +100,7 @@ export default function NavigationHeader() {
                 <DropdownMenuItem asChild>
                   <Link href="/profile" className="flex items-center">
                     <User className="mr-2 h-4 w-4" />
-                    Profile Settings
+                    {t('nav.profile')}
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem>
@@ -106,7 +111,7 @@ export default function NavigationHeader() {
                 <DropdownMenuItem asChild>
                   <a href="/api/logout" className="flex items-center text-emergency">
                     <LogOut className="mr-2 h-4 w-4" />
-                    Sign Out
+                    {t('nav.logout')}
                   </a>
                 </DropdownMenuItem>
               </DropdownMenuContent>

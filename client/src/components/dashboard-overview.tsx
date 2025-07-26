@@ -4,11 +4,13 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Bell, MapPin, Phone, CheckCircle, AlertTriangle, Route, MessageSquare } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { useLanguage } from "@/contexts/language-context";
 import { Link } from "wouter";
 import type { Alert, Village, User } from "@shared/schema";
 
 export default function DashboardOverview() {
   const { user } = useAuth() as { user: User | undefined };
+  const { t } = useLanguage();
 
   const { data: alerts } = useQuery<Alert[]>({
     queryKey: ["/api/alerts"],
@@ -26,13 +28,13 @@ export default function DashboardOverview() {
     <section className="mb-8">
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-3xl font-bold text-neutral-700">Emergency Dashboard</h1>
+          <h1 className="text-3xl font-bold text-neutral-700">{t('dashboard.title')}</h1>
           <p className="text-neutral-500">
-            Welcome back{user?.firstName ? `, ${user.firstName}` : ''}. Monitor and respond to emergencies in your area.
+            {t('dashboard.welcome')}{user?.firstName ? `, ${user.firstName}` : ''}. {t('dashboard.subtitle')}
           </p>
         </div>
         <div className="text-right">
-          <p className="text-sm text-neutral-500">Last updated</p>
+          <p className="text-sm text-neutral-500">{t('dashboard.lastUpdated')}</p>
           <p className="text-lg font-semibold text-neutral-700">
             {new Date().toLocaleTimeString()}
           </p>
@@ -43,13 +45,13 @@ export default function DashboardOverview() {
         {/* Active Emergencies */}
         <Card className={emergencyAlerts.length > 0 ? "border-emergency shadow-lg" : ""}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Emergencies</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('dashboard.activeEmergencies')}</CardTitle>
             <AlertTriangle className={`h-4 w-4 ${emergencyAlerts.length > 0 ? "text-emergency" : "text-neutral-400"}`} />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-emergency">{emergencyAlerts.length}</div>
             <p className="text-xs text-neutral-500">
-              {emergencyAlerts.length > 0 ? "Requires immediate attention" : "No active emergencies"}
+              {emergencyAlerts.length > 0 ? t('dashboard.requiresAttention') : t('dashboard.noActiveEmergencies')}
             </p>
           </CardContent>
         </Card>
@@ -57,13 +59,13 @@ export default function DashboardOverview() {
         {/* Warnings */}
         <Card className={warningAlerts.length > 0 ? "border-warning" : ""}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Warnings</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('dashboard.activeWarnings')}</CardTitle>
             <Bell className={`h-4 w-4 ${warningAlerts.length > 0 ? "text-warning" : "text-neutral-400"}`} />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-warning">{warningAlerts.length}</div>
             <p className="text-xs text-neutral-500">
-              {warningAlerts.length > 0 ? "Monitor situation" : "No active warnings"}
+              {warningAlerts.length > 0 ? t('dashboard.monitorSituation') : t('dashboard.noActiveWarnings')}
             </p>
           </CardContent>
         </Card>
@@ -71,13 +73,13 @@ export default function DashboardOverview() {
         {/* Villages Covered */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Villages Covered</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('dashboard.villagesCovered')}</CardTitle>
             <MapPin className="h-4 w-4 text-neutral-400" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-primary">{villages?.length || 0}</div>
             <p className="text-xs text-neutral-500">
-              Across Cyprus
+              {t('dashboard.acrossCyprus')}
             </p>
           </CardContent>
         </Card>
@@ -85,13 +87,13 @@ export default function DashboardOverview() {
         {/* System Status */}
         <Card className="border-success">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">System Status</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('dashboard.systemStatus')}</CardTitle>
             <CheckCircle className="h-4 w-4 text-success" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-success">Online</div>
+            <div className="text-2xl font-bold text-success">{t('dashboard.online')}</div>
             <p className="text-xs text-neutral-500">
-              All systems operational
+              {t('dashboard.allSystemsOperational')}
             </p>
           </CardContent>
         </Card>

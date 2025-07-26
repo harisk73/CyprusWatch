@@ -48,7 +48,7 @@ export default function SmsAlertsPage() {
 
   const sendSmsAlertMutation = useMutation({
     mutationFn: async (data: InsertSmsAlert) => {
-      return await apiRequest('/api/sms-alerts', 'POST', data);
+      return await apiRequest('POST', '/api/sms-alerts', data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/sms-alerts'] });
@@ -214,7 +214,7 @@ export default function SmsAlertsPage() {
                       <div>
                         <Label htmlFor="priority">Priority</Label>
                         <Select 
-                          value={smsForm.priority} 
+                          value={smsForm.priority || 'normal'} 
                           onValueChange={(value) => setSmsForm(prev => ({ ...prev, priority: value }))}
                         >
                           <SelectTrigger>
@@ -233,14 +233,14 @@ export default function SmsAlertsPage() {
                       <Label htmlFor="message">Message *</Label>
                       <Textarea
                         id="message"
-                        value={smsForm.message}
+                        value={smsForm.message || ''}
                         onChange={(e) => setSmsForm(prev => ({ ...prev, message: e.target.value }))}
                         placeholder="Enter your emergency message here..."
                         className="min-h-[100px]"
                         maxLength={160}
                       />
                       <p className="text-xs text-neutral-500 mt-1">
-                        {smsForm.message?.length || 0}/160 characters
+                        {(smsForm.message || '').length}/160 characters
                       </p>
                     </div>
 
@@ -319,7 +319,7 @@ export default function SmsAlertsPage() {
                         <div className="flex items-center space-x-4 text-sm text-gray-500">
                           <div className="flex items-center space-x-1">
                             <Clock className="h-4 w-4" />
-                            <span>{new Date(alert.sentAt).toLocaleString()}</span>
+                            <span>{alert.sentAt ? new Date(alert.sentAt).toLocaleString() : 'Unknown'}</span>
                           </div>
                           <div className="flex items-center space-x-1">
                             <Users className="h-4 w-4" />
