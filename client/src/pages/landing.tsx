@@ -27,18 +27,17 @@ export default function Landing() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold text-neutral-600 mb-4">
-            Stay Safe, Stay Informed
+            {t('landing.heroTitle')}
           </h2>
           <p className="text-xl text-neutral-500 mb-8 max-w-3xl mx-auto">
-            Cyprus Emergency Alert System provides real-time emergency notifications, 
-            interactive mapping, and community-based safety features for all villages across Cyprus.
+            {t('landing.heroSubtitle')}
           </p>
           <Button 
             size="lg"
             onClick={() => window.location.href = '/api/login'}
             className="bg-primary hover:bg-primary/90 text-lg px-8 py-4"
           >
-            Get Started - Sign In Now
+            {t('landing.getStarted')}
           </Button>
         </div>
 

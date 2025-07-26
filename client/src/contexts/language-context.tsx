@@ -130,6 +130,24 @@ const translations = {
     'common.alertSent': 'SMS Alert Sent',
     'common.alertSentDesc': 'Your emergency SMS notification has been sent successfully.',
     'common.failedToSend': 'Failed to send SMS alert. Please try again.',
+    
+    // Landing Page
+    'landing.title': 'Cyprus Emergency Alert',
+    'landing.signIn': 'Sign In',
+    'landing.heroTitle': 'Stay Safe, Stay Informed',
+    'landing.heroSubtitle': 'Cyprus Emergency Alert System provides real-time emergency notifications, interactive mapping, and community-based safety features for all villages across Cyprus.',
+    'landing.getStarted': 'Get Started - Sign In Now',
+    'landing.feature1Title': 'Interactive Mapping',
+    'landing.feature1Description': 'Report emergencies and view incidents on an interactive map of Cyprus with village boundaries.',
+    'landing.feature2Title': 'Real-time Alerts',
+    'landing.feature2Description': 'Receive instant notifications about emergencies, weather warnings, and community updates.',
+    'landing.feature3Title': 'Village Communities',
+    'landing.feature3Description': 'Connect with your village community and receive location-specific emergency information.',
+    'landing.feature4Title': 'Emergency Contacts',
+    'landing.feature4Description': 'Manage your emergency contacts and access quick dial numbers for emergency services.',
+    'landing.ctaTitle': 'Join Your Village Community Today',
+    'landing.ctaDescription': 'Sign in to access village-specific emergency alerts, report incidents in your area, and connect with your local emergency response network.',
+    'landing.ctaButton': 'Sign In to Continue',
   },
   el: {
     // Navigation
@@ -249,6 +267,24 @@ const translations = {
     'common.alertSent': 'Ειδοποίηση SMS Στάλθηκε',
     'common.alertSentDesc': 'Η ειδοποίηση SMS έκτακτης ανάγκης στάλθηκε επιτυχώς.',
     'common.failedToSend': 'Αποτυχία αποστολής ειδοποίησης SMS. Παρακαλώ δοκιμάστε ξανά.',
+    
+    // Landing Page
+    'landing.title': 'Κυπριακό Σύστημα Έκτακτης Ανάγκης',
+    'landing.signIn': 'Σύνδεση',
+    'landing.heroTitle': 'Μείνετε Ασφαλείς, Μείνετε Ενημερωμένοι',
+    'landing.heroSubtitle': 'Το Κυπριακό Σύστημα Έκτακτης Ανάγκης παρέχει ειδοποιήσεις έκτακτης ανάγκης σε πραγματικό χρόνο, διαδραστικούς χάρτες και χαρακτηριστικά ασφάλειας βασισμένα στην κοινότητα για όλα τα χωριά της Κύπρου.',
+    'landing.getStarted': 'Ξεκινήστε - Συνδεθείτε Τώρα',
+    'landing.feature1Title': 'Διαδραστικοί Χάρτες',
+    'landing.feature1Description': 'Αναφέρετε έκτακτες ανάγκες και δείτε περιστατικά σε διαδραστικό χάρτη της Κύπρου με όρια χωριών.',
+    'landing.feature2Title': 'Ειδοποιήσεις Πραγματικού Χρόνου',
+    'landing.feature2Description': 'Λάβετε άμεσες ειδοποιήσεις για έκτακτες ανάγκες, προειδοποιήσεις καιρού και ενημερώσεις κοινότητας.',
+    'landing.feature3Title': 'Κοινότητες Χωριών',
+    'landing.feature3Description': 'Συνδεθείτε με την κοινότητα του χωριού σας και λάβετε πληροφορίες έκτακτης ανάγκης σχετικές με την τοποθεσία.',
+    'landing.feature4Title': 'Επαφές Έκτακτης Ανάγκης',
+    'landing.feature4Description': 'Διαχειριστείτε τις επαφές έκτακτης ανάγκης και αποκτήστε πρόσβαση σε αριθμούς γρήγορης κλήσης για υπηρεσίες έκτακτης ανάγκης.',
+    'landing.ctaTitle': 'Ενταχθείτε στην Κοινότητα του Χωριού σας Σήμερα',
+    'landing.ctaDescription': 'Συνδεθείτε για πρόσβαση σε ειδοποιήσεις έκτακτης ανάγκης ειδικά για το χωριό σας, αναφορά περιστατικών στην περιοχή σας και σύνδεση με το τοπικό δίκτυο αντιμετώπισης έκτακτων αναγκών.',
+    'landing.ctaButton': 'Συνδεθείτε για Συνέχεια',
   }
 };
 
