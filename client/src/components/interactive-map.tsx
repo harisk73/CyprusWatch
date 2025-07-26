@@ -92,6 +92,18 @@ export default function InteractiveMap() {
         attribution: '© OpenStreetMap contributors'
       }).addTo(map);
 
+      // Add interactive cursor styles for map
+      map.getContainer().style.cursor = 'pointer';
+      
+      // Change cursor on hover
+      map.on('mouseover', () => {
+        map.getContainer().style.cursor = 'pointer';
+      });
+      
+      map.on('mouseout', () => {
+        map.getContainer().style.cursor = 'pointer';
+      });
+
       // Map click handler for adding new pins or selecting location
       map.on('click', (e: any) => {
         const { lat, lng } = e.latlng;

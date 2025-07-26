@@ -313,7 +313,7 @@ export default function EmergencyReport() {
                   <Button
                     type="submit"
                     disabled={createReportMutation.isPending}
-                    className="flex-1 bg-emergency hover:bg-emergency/90"
+                    className="flex-1 bg-red-600 hover:bg-red-700 text-white border-red-600 hover:border-red-700"
                   >
                     <Send className="w-4 h-4 mr-2" />
                     {createReportMutation.isPending ? "Reporting..." : "Submit Report"}
