@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import { WebSocketServer, WebSocket } from "ws";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
-import { insertEmergencyServiceCallSchema, insertEvacuationRouteSchema, insertEvacuationZoneSchema } from "@shared/schema";
+import { insertEmergencyServiceCallSchema, insertEvacuationRouteSchema, insertEvacuationZoneSchema, insertSmsAlertSchema } from "@shared/schema";
 import { insertEmergencyPinSchema, insertAlertSchema } from "@shared/schema";
 import { z } from "zod";
 
@@ -275,6 +275,71 @@ export async function registerRoutes(app: Express): Promise<Server> {
         res.status(400).json({ message: "Invalid route data", errors: error.errors });
       } else {
         res.status(500).json({ message: "Failed to create evacuation route" });
+      }
+    }
+  });
+
+  // SMS Alerts (Admin only)
+  app.get('/api/sms-alerts', isAdmin, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      
+      let smsAlerts;
+      if (user?.isVillageAdmin && user.villageId) {
+        // Village admin can only see their own SMS alerts
+        smsAlerts = await storage.getSmsAlertsBySender(userId);
+      } else {
+        // Super admin can see all SMS alerts
+        smsAlerts = await storage.getSmsAlerts();
+      }
+      
+      res.json(smsAlerts);
+    } catch (error) {
+      console.error("Error fetching SMS alerts:", error);
+      res.status(500).json({ message: "Failed to fetch SMS alerts" });
+    }
+  });
+
+  app.post('/api/sms-alerts', isAdmin, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      const validatedData = insertSmsAlertSchema.parse(req.body);
+      
+      // Validate target villages based on user permissions
+      let targetVillages = validatedData.targetVillages || [];
+      
+      if (user?.isVillageAdmin && user.villageId) {
+        // Village admins can only send to their own village
+        targetVillages = [user.villageId];
+      }
+      
+      // Get recipient count
+      const targetUsers = await storage.getUsersByVillages(targetVillages);
+      const recipientCount = targetUsers.length.toString();
+      
+      const smsAlert = await storage.createSmsAlert({
+        ...validatedData,
+        senderId: userId,
+        targetVillages,
+        recipientCount,
+        deliveryStatus: "sent", // In real implementation, this would be handled by SMS service
+      });
+      
+      // Broadcast SMS alert notification
+      broadcast({
+        type: 'sms_alert_sent',
+        data: { smsAlert, targetUsers: targetUsers.map(u => u.id) }
+      });
+      
+      res.json(smsAlert);
+    } catch (error) {
+      console.error("Error sending SMS alert:", error);
+      if (error instanceof z.ZodError) {
+        res.status(400).json({ message: "Invalid SMS alert data", errors: error.errors });
+      } else {
+        res.status(500).json({ message: "Failed to send SMS alert" });
       }
     }
   });

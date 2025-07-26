@@ -1,17 +1,14 @@
-import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Bell, MapPin, Phone, CheckCircle, AlertTriangle, Route } from "lucide-react";
+import { Bell, MapPin, Phone, CheckCircle, AlertTriangle, Route, MessageSquare } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { Link } from "wouter";
-import EmergencyContactsModal from "@/components/emergency-contacts-modal";
 import type { Alert, Village, User } from "@shared/schema";
 
 export default function DashboardOverview() {
   const { user } = useAuth() as { user: User | undefined };
-  const [contactsModalOpen, setContactsModalOpen] = useState(false);
 
   const { data: alerts } = useQuery<Alert[]>({
     queryKey: ["/api/alerts"],
@@ -214,26 +211,27 @@ export default function DashboardOverview() {
                 </Button>
               )}
 
-              <Button
-                variant="outline"
-                className="w-full p-4 h-auto bg-gradient-to-r from-info/10 to-info/5 border-info/20 hover:bg-info/10"
-                onClick={() => setContactsModalOpen(true)}
-              >
-                <div className="flex items-center space-x-3">
-                  <Phone className="h-8 w-8 text-info" />
-                  <div className="text-left">
-                    <h4 className="font-semibold text-neutral-700">Emergency Contacts</h4>
-                    <p className="text-sm text-neutral-500">Access important contact numbers</p>
-                  </div>
-                </div>
-              </Button>
+              {user?.isVillageAdmin && (
+                <Link href="/sms-alerts" className="w-full">
+                  <Button
+                    variant="outline"
+                    className="w-full p-4 h-auto bg-gradient-to-r from-green-50 to-green-25 border-green-200 hover:bg-green-100"
+                  >
+                    <div className="flex items-center space-x-3">
+                      <MessageSquare className="h-8 w-8 text-green-600" />
+                      <div className="text-left">
+                        <h4 className="font-semibold text-neutral-700">SMS Alerts</h4>
+                        <p className="text-sm text-neutral-500">Send emergency SMS notifications</p>
+                      </div>
+                    </div>
+                  </Button>
+                </Link>
+              )}
             </div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Modals */}
-      <EmergencyContactsModal open={contactsModalOpen} onOpenChange={setContactsModalOpen} />
     </section>
   );
 }

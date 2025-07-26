@@ -185,6 +185,19 @@ export const evacuationZones = pgTable("evacuation_zones", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// SMS alerts table (for tracking SMS notifications sent by admins)
+export const smsAlerts = pgTable("sms_alerts", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  senderId: varchar("sender_id").notNull(), // admin user id
+  message: text("message").notNull(),
+  alertType: varchar("alert_type").notNull(), // emergency, warning, info
+  targetVillages: text("target_villages").array(), // village IDs to send to
+  sentAt: timestamp("sent_at").defaultNow(),
+  recipientCount: varchar("recipient_count"), // number of recipients
+  deliveryStatus: varchar("delivery_status").default("pending"), // pending, sent, failed
+  priority: varchar("priority").default("normal"), // urgent, normal, low
+});
+
 // Relations
 export const usersRelations = relations(users, ({ one, many }) => ({
   village: one(villages, {
@@ -263,6 +276,13 @@ export const evacuationZonesRelations = relations(evacuationZones, ({ one }) => 
   }),
 }));
 
+export const smsAlertsRelations = relations(smsAlerts, ({ one }) => ({
+  sender: one(users, {
+    fields: [smsAlerts.senderId],
+    references: [users.id],
+  }),
+}));
+
 // Insert schemas
 export const upsertUserSchema = createInsertSchema(users).omit({
   createdAt: true,
@@ -313,6 +333,11 @@ export const insertEvacuationZoneSchema = createInsertSchema(evacuationZones).om
   updatedAt: true,
 });
 
+export const insertSmsAlertSchema = createInsertSchema(smsAlerts).omit({
+  id: true,
+  sentAt: true,
+});
+
 // Types
 export type UpsertUser = z.infer<typeof upsertUserSchema>;
 export type User = typeof users.$inferSelect;
@@ -332,3 +357,5 @@ export type EvacuationRoute = typeof evacuationRoutes.$inferSelect;
 export type InsertEvacuationRoute = z.infer<typeof insertEvacuationRouteSchema>;
 export type EvacuationZone = typeof evacuationZones.$inferSelect;
 export type InsertEvacuationZone = z.infer<typeof insertEvacuationZoneSchema>;
+export type SmsAlert = typeof smsAlerts.$inferSelect;
+export type InsertSmsAlert = z.infer<typeof insertSmsAlertSchema>;

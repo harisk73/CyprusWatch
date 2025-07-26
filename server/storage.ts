@@ -8,6 +8,7 @@ import {
   emergencyServiceCalls,
   evacuationRoutes,
   evacuationZones,
+  smsAlerts,
   type User,
   type UpsertUser,
   type Village,
@@ -26,6 +27,8 @@ import {
   type InsertEvacuationRoute,
   type EvacuationZone,
   type InsertEvacuationZone,
+  type SmsAlert,
+  type InsertSmsAlert,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, inArray, and, desc } from "drizzle-orm";
@@ -79,6 +82,12 @@ export interface IStorage {
   createEvacuationZone(zone: InsertEvacuationZone): Promise<EvacuationZone>;
   updateEvacuationZone(id: string, updates: Partial<InsertEvacuationZone>): Promise<EvacuationZone | undefined>;
   deleteEvacuationZone(id: string): Promise<void>;
+
+  // SMS alert operations (admin only)
+  getSmsAlerts(): Promise<SmsAlert[]>;
+  getSmsAlertsBySender(senderId: string): Promise<SmsAlert[]>;
+  createSmsAlert(smsAlert: InsertSmsAlert): Promise<SmsAlert>;
+  updateSmsAlertDeliveryStatus(id: string, status: string): Promise<SmsAlert | undefined>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -86,6 +95,17 @@ export class DatabaseStorage implements IStorage {
   async getUser(id: string): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
     return user;
+  }
+
+  async getUsersByVillages(villageIds: string[]): Promise<User[]> {
+    if (villageIds.length === 0) {
+      return await db.select().from(users);
+    }
+    return await db.select().from(users).where(
+      villageIds.length === 1 
+        ? eq(users.villageId, villageIds[0])
+        : sql`${users.villageId} = ANY(${villageIds})`
+    );
   }
 
   async upsertUser(userData: UpsertUser): Promise<User> {
@@ -338,6 +358,36 @@ export class DatabaseStorage implements IStorage {
 
   async deleteEvacuationZone(id: string): Promise<void> {
     await db.delete(evacuationZones).where(eq(evacuationZones.id, id));
+  }
+
+  // SMS alert operations
+  async getSmsAlerts(): Promise<SmsAlert[]> {
+    return await db.select().from(smsAlerts).orderBy(desc(smsAlerts.sentAt));
+  }
+
+  async getSmsAlertsBySender(senderId: string): Promise<SmsAlert[]> {
+    return await db
+      .select()
+      .from(smsAlerts)
+      .where(eq(smsAlerts.senderId, senderId))
+      .orderBy(desc(smsAlerts.sentAt));
+  }
+
+  async createSmsAlert(smsAlertData: InsertSmsAlert): Promise<SmsAlert> {
+    const [smsAlert] = await db
+      .insert(smsAlerts)
+      .values(smsAlertData)
+      .returning();
+    return smsAlert;
+  }
+
+  async updateSmsAlertDeliveryStatus(id: string, status: string): Promise<SmsAlert | undefined> {
+    const [updatedAlert] = await db
+      .update(smsAlerts)
+      .set({ deliveryStatus: status })
+      .where(eq(smsAlerts.id, id))
+      .returning();
+    return updatedAlert;
   }
 }
 
