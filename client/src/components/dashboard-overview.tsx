@@ -40,7 +40,6 @@ export default function DashboardOverview() {
           </p>
         </div>
       </div>
-
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {/* Active Emergencies */}
         <Card className={emergencyAlerts.length > 0 ? "border-emergency shadow-lg" : ""}>
@@ -98,7 +97,6 @@ export default function DashboardOverview() {
           </CardContent>
         </Card>
       </div>
-
       {/* Quick Actions */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
@@ -137,7 +135,7 @@ export default function DashboardOverview() {
             ) : (
               <div className="text-center py-8 text-neutral-500">
                 <Bell className="h-12 w-12 mx-auto mb-4 text-neutral-300" />
-                <p>No recent alerts</p>
+                <p>Δεν υπάρχουν πρόσφατες ειδοποιήσεις</p>
                 <p className="text-sm">All quiet in your area</p>
               </div>
             )}
@@ -233,7 +231,6 @@ export default function DashboardOverview() {
           </CardContent>
         </Card>
       </div>
-
     </section>
   );
 }
