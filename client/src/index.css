@@ -1,0 +1,186 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: hsl(0, 0%, 100%);
+  --foreground: hsl(20, 14.3%, 4.1%);
+  --muted: hsl(60, 4.8%, 95.9%);
+  --muted-foreground: hsl(25, 5.3%, 44.7%);
+  --popover: hsl(0, 0%, 100%);
+  --popover-foreground: hsl(20, 14.3%, 4.1%);
+  --card: hsl(0, 0%, 100%);
+  --card-foreground: hsl(20, 14.3%, 4.1%);
+  --border: hsl(20, 5.9%, 90%);
+  --input: hsl(20, 5.9%, 90%);
+  --primary: hsl(207, 90%, 54%);
+  --primary-foreground: hsl(211, 100%, 99%);
+  --secondary: hsl(60, 4.8%, 95.9%);
+  --secondary-foreground: hsl(24, 9.8%, 10%);
+  --accent: hsl(60, 4.8%, 95.9%);
+  --accent-foreground: hsl(24, 9.8%, 10%);
+  --destructive: hsl(0, 84.2%, 60.2%);
+  --destructive-foreground: hsl(60, 9.1%, 97.8%);
+  --ring: hsl(20, 14.3%, 4.1%);
+  --radius: 0.5rem;
+  
+  /* Custom emergency system colors */
+  --emergency: hsl(0, 73%, 51%);
+  --warning: hsl(35, 93%, 48%);
+  --success: hsl(122, 43%, 45%);
+  --neutral-600: hsl(0, 0%, 26%);
+  --neutral-500: hsl(0, 0%, 46%);
+  --neutral-100: hsl(0, 0%, 96%);
+}
+
+.dark {
+  --background: hsl(240, 10%, 3.9%);
+  --foreground: hsl(0, 0%, 98%);
+  --muted: hsl(240, 3.7%, 15.9%);
+  --muted-foreground: hsl(240, 5%, 64.9%);
+  --popover: hsl(240, 10%, 3.9%);
+  --popover-foreground: hsl(0, 0%, 98%);
+  --card: hsl(240, 10%, 3.9%);
+  --card-foreground: hsl(0, 0%, 98%);
+  --border: hsl(240, 3.7%, 15.9%);
+  --input: hsl(240, 3.7%, 15.9%);
+  --primary: hsl(207, 90%, 54%);
+  --primary-foreground: hsl(211, 100%, 99%);
+  --secondary: hsl(240, 3.7%, 15.9%);
+  --secondary-foreground: hsl(0, 0%, 98%);
+  --accent: hsl(240, 3.7%, 15.9%);
+  --accent-foreground: hsl(0, 0%, 98%);
+  --destructive: hsl(0, 62.8%, 30.6%);
+  --destructive-foreground: hsl(0, 0%, 98%);
+  --ring: hsl(240, 4.9%, 83.9%);
+  
+  /* Custom emergency system colors for dark mode */
+  --emergency: hsl(0, 73%, 51%);
+  --warning: hsl(35, 93%, 48%);
+  --success: hsl(122, 43%, 45%);
+  --neutral-600: hsl(0, 0%, 74%);
+  --neutral-500: hsl(0, 0%, 54%);
+  --neutral-100: hsl(0, 0%, 4%);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .font-inter {
+    font-family: 'Inter', sans-serif;
+  }
+  
+  .text-emergency {
+    color: hsl(var(--emergency));
+  }
+  
+  .bg-emergency {
+    background-color: hsl(var(--emergency));
+  }
+  
+  .text-warning {
+    color: hsl(var(--warning));
+  }
+  
+  .bg-warning {
+    background-color: hsl(var(--warning));
+  }
+  
+  .text-success {
+    color: hsl(var(--success));
+  }
+  
+  .bg-success {
+    background-color: hsl(var(--success));
+  }
+  
+  .text-neutral-600 {
+    color: hsl(var(--neutral-600));
+  }
+  
+  .text-neutral-500 {
+    color: hsl(var(--neutral-500));
+  }
+  
+  .bg-neutral-100 {
+    background-color: hsl(var(--neutral-100));
+  }
+  
+  .border-emergency {
+    border-color: hsl(var(--emergency));
+  }
+  
+  .border-warning {
+    border-color: hsl(var(--warning));
+  }
+  
+  .border-success {
+    border-color: hsl(var(--success));
+  }
+  
+  .emergency\/10 {
+    background-color: hsl(var(--emergency) / 0.1);
+  }
+  
+  .warning\/10 {
+    background-color: hsl(var(--warning) / 0.1);
+  }
+  
+  .success\/10 {
+    background-color: hsl(var(--success) / 0.1);
+  }
+  
+  .success\/20 {
+    background-color: hsl(var(--success) / 0.2);
+  }
+  
+  .primary\/10 {
+    background-color: hsl(var(--primary) / 0.1);
+  }
+  
+  .primary\/90 {
+    background-color: hsl(var(--primary) / 0.9);
+  }
+  
+  .emergency\/90 {
+    background-color: hsl(var(--emergency) / 0.9);
+  }
+}
+
+/* Custom map pin styles */
+.custom-pin {
+  background: transparent !important;
+  border: none !important;
+}
+
+/* Loading animation for map */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: .5;
+  }
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Leaflet popup customization */
+.leaflet-popup-content-wrapper {
+  border-radius: 8px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.leaflet-popup-tip {
+  background: white;
+}
