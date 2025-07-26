@@ -92,9 +92,20 @@ export default function InteractiveMap() {
         attribution: '© OpenStreetMap contributors'
       }).addTo(map);
 
-      // Map click handler for adding new pins
+      // Map click handler for adding new pins or selecting location
       map.on('click', (e: any) => {
         const { lat, lng } = e.latlng;
+        
+        // Emit custom event for emergency reporting page to listen to
+        const mapClickEvent = new CustomEvent('mapClick', {
+          detail: { lat, lng }
+        });
+        window.dispatchEvent(mapClickEvent);
+        
+        // Only create pins on home page (not on emergency reporting page)
+        if (window.location.pathname === '/emergency-report') {
+          return; // Just emit the event, don't create pin
+        }
         
         if (createPinMutation.isPending) {
           toast({

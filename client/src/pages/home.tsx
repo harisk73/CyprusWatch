@@ -7,7 +7,7 @@ import EmergencyBanner from "@/components/emergency-banner";
 import DashboardOverview from "@/components/dashboard-overview";
 import InteractiveMap from "@/components/interactive-map";
 import AlertsNotifications from "@/components/alerts-notifications";
-import EmergencyModal from "@/components/emergency-modal";
+
 import type { User } from "@shared/schema";
 
 export default function Home() {
@@ -59,7 +59,7 @@ export default function Home() {
         <AlertsNotifications />
       </main>
 
-      <EmergencyModal />
+
     </div>
   );
 }

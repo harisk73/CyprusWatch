@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Bell, MapPin, Phone, CheckCircle, AlertTriangle } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { Link } from "wouter";
 import EmergencyContactsModal from "@/components/emergency-contacts-modal";
 import type { Alert, Village, User } from "@shared/schema";
 
@@ -150,25 +151,20 @@ export default function DashboardOverview() {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              <Button
-                variant="outline"
-                className="w-full p-4 h-auto bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20 hover:bg-primary/10"
-                onClick={() => {
-                  // Trigger the floating emergency button
-                  const emergencyButton = document.querySelector('[title="Quick Emergency Report"]') as HTMLButtonElement;
-                  if (emergencyButton) {
-                    emergencyButton.click();
-                  }
-                }}
-              >
-                <div className="flex items-center space-x-3">
-                  <MapPin className="h-8 w-8 text-primary" />
-                  <div className="text-left">
-                    <h4 className="font-semibold text-neutral-700">Report Emergency</h4>
-                    <p className="text-sm text-neutral-500">Click to report an emergency incident</p>
+              <Link href="/emergency-report" className="w-full">
+                <Button
+                  variant="outline"
+                  className="w-full p-4 h-auto bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20 hover:bg-primary/10"
+                >
+                  <div className="flex items-center space-x-3">
+                    <MapPin className="h-8 w-8 text-primary" />
+                    <div className="text-left">
+                      <h4 className="font-semibold text-neutral-700">Report Emergency</h4>
+                      <p className="text-sm text-neutral-500">Open emergency reporting page</p>
+                    </div>
                   </div>
-                </div>
-              </Button>
+                </Button>
+              </Link>
 
               {user?.isVillageAdmin && (
                 <Button
