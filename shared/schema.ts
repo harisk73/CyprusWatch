@@ -57,6 +57,10 @@ export const users = pgTable("users", {
     quietHoursFrom: "22:00",
     quietHoursTo: "07:00"
   }),
+  emergencyReadinessScore: integer("emergency_readiness_score").default(0), // 0-100 score
+  emergencyReadinessLevel: varchar("emergency_readiness_level").default("beginner"), // beginner, prepared, expert
+  emergencyReadinessBadges: jsonb("emergency_readiness_badges").default([]), // Array of earned badge IDs
+  shareEmergencyReadiness: boolean("share_emergency_readiness").default(false), // Privacy setting
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
