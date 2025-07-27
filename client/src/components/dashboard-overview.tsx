@@ -128,7 +128,7 @@ export default function DashboardOverview() {
         {/* Warnings */}
         <Card className={warningAlerts.length > 0 ? "border-warning" : ""}>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
+            <CardTitle className="tracking-tight text-[18px] font-bold">
               {t("dashboard.activeWarnings")}
             </CardTitle>
             <Bell
