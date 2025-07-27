@@ -12,9 +12,10 @@ import * as Location from 'expo-location';
 
 interface HomeScreenProps {
   navigation: any;
+  user: any;
 }
 
-export default function HomeScreen({ navigation }: HomeScreenProps) {
+export default function HomeScreen({ navigation, user }: HomeScreenProps) {
   const handleEmergencyCall = () => {
     Alert.alert(
       'Emergency Call',
@@ -34,12 +35,15 @@ export default function HomeScreen({ navigation }: HomeScreenProps) {
     <ScrollView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>Emergency Dashboard</Text>
-        <TouchableOpacity
-          style={styles.profileButton}
-          onPress={() => navigation.navigate('Profile')}
-        >
-          <Text style={styles.profileButtonText}>Profile</Text>
-        </TouchableOpacity>
+        <View style={styles.headerRight}>
+          <Text style={styles.welcomeText}>Welcome, {user?.name || 'User'}</Text>
+          <TouchableOpacity
+            style={styles.profileButton}
+            onPress={() => navigation.navigate('Profile')}
+          >
+            <Text style={styles.profileButtonText}>Profile</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       <TouchableOpacity style={styles.emergencyButton} onPress={handleEmergencyCall}>
@@ -80,6 +84,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 20,
     backgroundColor: '#fff',
+  },
+  headerRight: {
+    alignItems: 'flex-end',
+  },
+  welcomeText: {
+    fontSize: 12,
+    color: '#666',
+    marginBottom: 5,
   },
   title: {
     fontSize: 24,

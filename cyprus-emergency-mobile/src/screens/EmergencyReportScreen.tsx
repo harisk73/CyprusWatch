@@ -10,7 +10,11 @@ import {
 } from 'react-native';
 import * as Location from 'expo-location';
 
-export default function EmergencyReportScreen() {
+interface EmergencyReportScreenProps {
+  navigation: any;
+}
+
+export default function EmergencyReportScreen({ navigation }: EmergencyReportScreenProps) {
   const [location, setLocation] = useState<Location.LocationObject | null>(null);
   const [selectedType, setSelectedType] = useState<string>('');
 
@@ -53,16 +57,33 @@ export default function EmergencyReportScreen() {
       return;
     }
 
+    // Submit the emergency report
     Alert.alert(
-      'Report Submitted',
-      'Your emergency report has been submitted successfully. Emergency services have been notified.',
-      [{ text: 'OK' }]
+      'Emergency Reported',
+      `Emergency type: ${selectedType}\nLocation: ${location.coords.latitude}, ${location.coords.longitude}`,
+      [
+        {
+          text: 'OK',
+          onPress: () => navigation.navigate('Home'),
+        },
+      ]
     );
   };
 
+  const handleBack = () => {
+    navigation.navigate('Home');
+  };
+
   return (
-    <ScrollView style={styles.container}>
-      <Text style={styles.title}>Report Emergency</Text>
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+          <Text style={styles.backButtonText}>← Back</Text>
+        </TouchableOpacity>
+        <Text style={styles.title}>Report Emergency</Text>
+      </View>
+      
+      <ScrollView style={styles.content}>
       
       <View style={styles.locationSection}>
         <Text style={styles.sectionTitle}>📍 Current Location</Text>
@@ -105,22 +126,41 @@ export default function EmergencyReportScreen() {
       >
         <Text style={styles.submitButtonText}>Submit Emergency Report</Text>
       </TouchableOpacity>
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
     backgroundColor: '#f5f5f5',
   },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 20,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#ddd',
+  },
+  backButton: {
+    marginRight: 20,
+  },
+  backButtonText: {
+    fontSize: 16,
+    color: '#007bff',
+  },
   title: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: 'bold',
-    marginBottom: 20,
     color: '#d32f2f',
+    flex: 1,
     textAlign: 'center',
+  },
+  content: {
+    flex: 1,
+    padding: 20,
   },
   locationSection: {
     backgroundColor: '#fff',

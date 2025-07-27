@@ -8,19 +8,32 @@ import {
   ScrollView,
 } from 'react-native';
 
-export default function ProfileScreen() {
+interface ProfileScreenProps {
+  navigation: any;
+  user: any;
+}
+
+export default function ProfileScreen({ navigation, user }: ProfileScreenProps) {
   return (
     <ScrollView style={styles.container}>
-      <Text style={styles.title}>User Profile</Text>
+      <View style={styles.header}>
+        <TouchableOpacity 
+          style={styles.backButton}
+          onPress={() => navigation.navigate('Home')}
+        >
+          <Text style={styles.backButtonText}>← Back</Text>
+        </TouchableOpacity>
+        <Text style={styles.title}>User Profile</Text>
+      </View>
       
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Personal Information</Text>
         <Text style={styles.label}>Name:</Text>
-        <Text style={styles.value}>John Doe</Text>
+        <Text style={styles.value}>{user?.name || 'User'}</Text>
         <Text style={styles.label}>Email:</Text>
-        <Text style={styles.value}>john.doe@example.com</Text>
-        <Text style={styles.label}>Phone:</Text>
-        <Text style={styles.value}>+357 99 123456</Text>
+        <Text style={styles.value}>{user?.email || 'user@example.com'}</Text>
+        <Text style={styles.label}>Village:</Text>
+        <Text style={styles.value}>{user?.village || 'Not specified'}</Text>
       </View>
 
       <View style={styles.section}>
@@ -35,7 +48,10 @@ export default function ProfileScreen() {
         </TouchableOpacity>
       </View>
 
-      <TouchableOpacity style={styles.logoutButton}>
+      <TouchableOpacity 
+        style={styles.logoutButton}
+        onPress={() => navigation.replace('Login')}
+      >
         <Text style={styles.logoutButtonText}>Logout</Text>
       </TouchableOpacity>
     </ScrollView>
@@ -45,15 +61,32 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
     backgroundColor: '#f5f5f5',
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 20,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#ddd',
+  },
+  backButton: {
+    marginRight: 20,
+  },
+  backButtonText: {
+    fontSize: 16,
+    color: '#007bff',
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 20,
     color: '#333',
+    flex: 1,
     textAlign: 'center',
+  },
+  content: {
+    padding: 20,
   },
   section: {
     backgroundColor: '#fff',

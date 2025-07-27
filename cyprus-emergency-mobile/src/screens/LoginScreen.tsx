@@ -12,9 +12,10 @@ import { apiRequest } from '../config/api';
 
 interface LoginScreenProps {
   navigation: any;
+  onLogin: (user: any) => void;
 }
 
-export default function LoginScreen({ navigation }: LoginScreenProps) {
+export default function LoginScreen({ navigation, onLogin }: LoginScreenProps) {
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -27,7 +28,9 @@ export default function LoginScreen({ navigation }: LoginScreenProps) {
     setIsLoading(true);
     try {
       // In a real app, you'd implement proper authentication
-      // For now, navigate to Home screen
+      // For now, create a mock user and navigate to Home screen
+      const mockUser = { email, name: 'User', village: 'Limassol' };
+      onLogin(mockUser);
       navigation.replace('Home');
     } catch (error) {
       Alert.alert('Login Failed', 'Please try again');

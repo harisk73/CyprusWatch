@@ -1,8 +1,5 @@
 
-import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import React, { useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, View } from 'react-native';
 
@@ -12,24 +9,35 @@ import EmergencyReportScreen from './src/screens/EmergencyReportScreen';
 import ProfileScreen from './src/screens/ProfileScreen';
 import LoginScreen from './src/screens/LoginScreen';
 
-const Stack = createStackNavigator();
-const queryClient = new QueryClient();
-
 export default function App() {
+  const [currentScreen, setCurrentScreen] = useState('Login');
+  const [user, setUser] = useState(null);
+
+  const navigation = {
+    navigate: (screenName: string) => setCurrentScreen(screenName),
+    replace: (screenName: string) => setCurrentScreen(screenName),
+  };
+
+  const renderScreen = () => {
+    switch (currentScreen) {
+      case 'Login':
+        return <LoginScreen navigation={navigation} onLogin={setUser} />;
+      case 'Home':
+        return <HomeScreen navigation={navigation} user={user} />;
+      case 'EmergencyReport':
+        return <EmergencyReportScreen navigation={navigation} />;
+      case 'Profile':
+        return <ProfileScreen navigation={navigation} user={user} />;
+      default:
+        return <LoginScreen navigation={navigation} onLogin={setUser} />;
+    }
+  };
+
   return (
-    <QueryClientProvider client={queryClient}>
-      <NavigationContainer>
-        <View style={styles.container}>
-          <StatusBar style="auto" />
-          <Stack.Navigator initialRouteName="Login">
-            <Stack.Screen name="Login" component={LoginScreen} />
-            <Stack.Screen name="Home" component={HomeScreen} />
-            <Stack.Screen name="EmergencyReport" component={EmergencyReportScreen} />
-            <Stack.Screen name="Profile" component={ProfileScreen} />
-          </Stack.Navigator>
-        </View>
-      </NavigationContainer>
-    </QueryClientProvider>
+    <View style={styles.container}>
+      <StatusBar style="auto" />
+      {renderScreen()}
+    </View>
   );
 }
 
