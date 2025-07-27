@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { AlertTriangle, Send, MapPin, Crosshair, ArrowLeft, Home } from "lucide-react";
+import { AlertTriangle, Send, MapPin, Crosshair, ArrowLeft, Home, Map } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { isUnauthorizedError } from "@/lib/authUtils";
@@ -194,41 +194,61 @@ export default function EmergencyReport() {
             </div>
           </div>
           <p className="text-neutral-500">
-            Report an emergency incident. Use the map to pinpoint the exact location or provide GPS/manual location.
+            Report an emergency incident. Use the quick access buttons below or scroll down to the form.
           </p>
+          
+          {/* Quick Access Buttons */}
+          <div className="grid grid-cols-3 gap-4 mt-6">
+            <Button
+              variant="outline"
+              size="lg"
+              onClick={getCurrentLocation}
+              disabled={isGettingLocation}
+              className="h-16 flex flex-col items-center justify-center bg-green-50 border-green-200 hover:bg-green-100 text-green-700"
+            >
+              <Crosshair className="h-6 w-6 mb-1" />
+              <span className="text-sm font-medium">
+                {isGettingLocation ? "Getting GPS..." : "GPS Location"}
+              </span>
+            </Button>
+            <Button
+              variant="outline"
+              size="lg"
+              onClick={() => {
+                setLocationMethod("manual");
+                // Scroll to location input
+                const locationInput = document.getElementById("location");
+                locationInput?.focus();
+              }}
+              className="h-16 flex flex-col items-center justify-center bg-blue-50 border-blue-200 hover:bg-blue-100 text-blue-700"
+            >
+              <MapPin className="h-6 w-6 mb-1" />
+              <span className="text-sm font-medium">Manual Entry</span>
+            </Button>
+            <Button
+              variant="outline"
+              size="lg"
+              onClick={() => {
+                // Scroll to map
+                const mapCard = document.querySelector('[data-map-card]');
+                mapCard?.scrollIntoView({ behavior: 'smooth' });
+              }}
+              className="h-16 flex flex-col items-center justify-center bg-purple-50 border-purple-200 hover:bg-purple-100 text-purple-700"
+            >
+              <Map className="h-6 w-6 mb-1" />
+              <span className="text-sm font-medium">Use Map</span>
+            </Button>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="space-y-8">
           {/* Emergency Form */}
-          <Card>
+          <Card className="w-full">
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
                 <AlertTriangle className="h-5 w-5 text-emergency" />
                 <span>Emergency Details</span>
               </CardTitle>
-              
-              {/* Color Legend */}
-              <div className="mt-4 p-3 bg-neutral-50 rounded-lg">
-                <p className="text-sm font-medium text-neutral-600 mb-2">Emergency Types & Colors:</p>
-                <div className="grid grid-cols-2 gap-2 text-xs">
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full" style={{backgroundColor: '#D32F2F'}}></div>
-                    <span>🔥 Fire</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full" style={{backgroundColor: '#F57C00'}}></div>
-                    <span>💨 Smoke</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full" style={{backgroundColor: '#1976D2'}}></div>
-                    <span>🌊 Flood</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full" style={{backgroundColor: '#7B1FA2'}}></div>
-                    <span>🚗 Accident</span>
-                  </div>
-                </div>
-              </div>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-6">
@@ -347,7 +367,7 @@ export default function EmergencyReport() {
           </Card>
 
           {/* Interactive Map */}
-          <Card>
+          <Card className="w-full" data-map-card>
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
                 <MapPin className="h-5 w-5 text-primary" />
