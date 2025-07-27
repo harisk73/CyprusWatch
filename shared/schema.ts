@@ -1,5 +1,5 @@
-import { sql } from 'drizzle-orm';
-import { relations } from 'drizzle-orm';
+import { sql } from "drizzle-orm";
+import { relations } from "drizzle-orm";
 import {
   boolean,
   index,
@@ -28,7 +28,9 @@ export const sessions = pgTable(
 
 // User storage table - mandatory for Replit Auth
 export const users = pgTable("users", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
   email: varchar("email").unique(),
   firstName: varchar("first_name"),
   lastName: varchar("last_name"),
@@ -55,11 +57,9 @@ export const users = pgTable("users", {
     smsNotifications: true,
     emailNotifications: false,
     quietHoursFrom: "22:00",
-    quietHoursTo: "07:00"
+    quietHoursTo: "07:00",
   }),
-  emergencyReadinessScore: integer("emergency_readiness_score").default(0), // 0-100 score
-  emergencyReadinessLevel: varchar("emergency_readiness_level").default("beginner"), // beginner, prepared, expert
-  emergencyReadinessBadges: jsonb("emergency_readiness_badges").default([]), // Array of earned badge IDs
+
   shareEmergencyReadiness: boolean("share_emergency_readiness").default(false), // Privacy setting
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
@@ -67,7 +67,9 @@ export const users = pgTable("users", {
 
 // Villages table
 export const villages = pgTable("villages", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
   name: varchar("name").notNull(),
   district: varchar("district").notNull(),
   boundaries: jsonb("boundaries"), // GeoJSON for village boundaries
@@ -77,18 +79,20 @@ export const villages = pgTable("villages", {
 // Emergency pin types enum
 export const emergencyTypeEnum = pgEnum("emergency_type", [
   "fire",
-  "smoke", 
+  "smoke",
   "flood",
   "accident",
   "medical",
   "weather",
   "security",
-  "other"
+  "other",
 ]);
 
 // Emergency pins table
 export const emergencyPins = pgTable("emergency_pins", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
   userId: varchar("user_id").notNull(),
   type: emergencyTypeEnum("type").notNull(),
   latitude: decimal("latitude", { precision: 10, scale: 8 }).notNull(),
@@ -105,14 +109,16 @@ export const emergencyPins = pgTable("emergency_pins", {
 // Alert types enum
 export const alertTypeEnum = pgEnum("alert_type", [
   "emergency",
-  "warning", 
+  "warning",
   "info",
-  "weather"
+  "weather",
 ]);
 
 // Alerts table
 export const alerts = pgTable("alerts", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
   adminId: varchar("admin_id").notNull(),
   type: alertTypeEnum("type").notNull(),
   title: varchar("title").notNull(),
@@ -126,7 +132,9 @@ export const alerts = pgTable("alerts", {
 
 // Alert deliveries table (to track who received what)
 export const alertDeliveries = pgTable("alert_deliveries", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
   alertId: varchar("alert_id").notNull(),
   userId: varchar("user_id").notNull(),
   deliveredAt: timestamp("delivered_at").defaultNow(),
@@ -135,7 +143,9 @@ export const alertDeliveries = pgTable("alert_deliveries", {
 
 // Emergency services table
 export const emergencyServices = pgTable("emergency_services", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
   name: varchar("name").notNull(),
   type: varchar("type").notNull(), // police, fire, ambulance, general
   phone: varchar("phone").notNull(),
@@ -149,7 +159,9 @@ export const emergencyServices = pgTable("emergency_services", {
 
 // Emergency service calls log (for tracking emergency calls made through the app)
 export const emergencyServiceCalls = pgTable("emergency_service_calls", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
   userId: varchar("user_id").notNull(),
   serviceId: varchar("service_id").notNull(),
   emergencyPinId: varchar("emergency_pin_id"), // if call relates to a reported incident
@@ -160,7 +172,9 @@ export const emergencyServiceCalls = pgTable("emergency_service_calls", {
 
 // Evacuation routes table (admin/sub-admin only)
 export const evacuationRoutes = pgTable("evacuation_routes", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
   name: varchar("name").notNull(),
   description: text("description"),
   villageId: varchar("village_id").notNull(),
@@ -182,7 +196,9 @@ export const evacuationRoutes = pgTable("evacuation_routes", {
 
 // Evacuation zones table (areas that need evacuation)
 export const evacuationZones = pgTable("evacuation_zones", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
   name: varchar("name").notNull(),
   description: text("description"),
   villageId: varchar("village_id").notNull(),
@@ -199,7 +215,9 @@ export const evacuationZones = pgTable("evacuation_zones", {
 
 // SMS alerts table (for tracking SMS notifications sent by admins)
 export const smsAlerts = pgTable("sms_alerts", {
-  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  id: varchar("id")
+    .primaryKey()
+    .default(sql`gen_random_uuid()`),
   senderId: varchar("sender_id").notNull(), // admin user id
   message: text("message").notNull(),
   alertType: varchar("alert_type").notNull(), // emergency, warning, info
@@ -240,53 +258,65 @@ export const alertsRelations = relations(alerts, ({ one, many }) => ({
   deliveries: many(alertDeliveries),
 }));
 
-export const alertDeliveriesRelations = relations(alertDeliveries, ({ one }) => ({
-  alert: one(alerts, {
-    fields: [alertDeliveries.alertId],
-    references: [alerts.id],
+export const alertDeliveriesRelations = relations(
+  alertDeliveries,
+  ({ one }) => ({
+    alert: one(alerts, {
+      fields: [alertDeliveries.alertId],
+      references: [alerts.id],
+    }),
+    user: one(users, {
+      fields: [alertDeliveries.userId],
+      references: [users.id],
+    }),
   }),
-  user: one(users, {
-    fields: [alertDeliveries.userId],
-    references: [users.id],
-  }),
-}));
+);
 
-export const emergencyServiceCallsRelations = relations(emergencyServiceCalls, ({ one }) => ({
-  user: one(users, {
-    fields: [emergencyServiceCalls.userId],
-    references: [users.id],
+export const emergencyServiceCallsRelations = relations(
+  emergencyServiceCalls,
+  ({ one }) => ({
+    user: one(users, {
+      fields: [emergencyServiceCalls.userId],
+      references: [users.id],
+    }),
+    service: one(emergencyServices, {
+      fields: [emergencyServiceCalls.serviceId],
+      references: [emergencyServices.id],
+    }),
+    emergencyPin: one(emergencyPins, {
+      fields: [emergencyServiceCalls.emergencyPinId],
+      references: [emergencyPins.id],
+    }),
   }),
-  service: one(emergencyServices, {
-    fields: [emergencyServiceCalls.serviceId],
-    references: [emergencyServices.id],
-  }),
-  emergencyPin: one(emergencyPins, {
-    fields: [emergencyServiceCalls.emergencyPinId],
-    references: [emergencyPins.id],
-  }),
-}));
+);
 
-export const evacuationRoutesRelations = relations(evacuationRoutes, ({ one }) => ({
-  village: one(villages, {
-    fields: [evacuationRoutes.villageId],
-    references: [villages.id],
+export const evacuationRoutesRelations = relations(
+  evacuationRoutes,
+  ({ one }) => ({
+    village: one(villages, {
+      fields: [evacuationRoutes.villageId],
+      references: [villages.id],
+    }),
+    creator: one(users, {
+      fields: [evacuationRoutes.createdBy],
+      references: [users.id],
+    }),
   }),
-  creator: one(users, {
-    fields: [evacuationRoutes.createdBy],
-    references: [users.id],
-  }),
-}));
+);
 
-export const evacuationZonesRelations = relations(evacuationZones, ({ one }) => ({
-  village: one(villages, {
-    fields: [evacuationZones.villageId],
-    references: [villages.id],
+export const evacuationZonesRelations = relations(
+  evacuationZones,
+  ({ one }) => ({
+    village: one(villages, {
+      fields: [evacuationZones.villageId],
+      references: [villages.id],
+    }),
+    creator: one(users, {
+      fields: [evacuationZones.createdBy],
+      references: [users.id],
+    }),
   }),
-  creator: one(users, {
-    fields: [evacuationZones.createdBy],
-    references: [users.id],
-  }),
-}));
+);
 
 export const smsAlertsRelations = relations(smsAlerts, ({ one }) => ({
   sender: one(users, {
@@ -318,28 +348,38 @@ export const insertAlertSchema = createInsertSchema(alerts).omit({
   updatedAt: true,
 });
 
-export const insertAlertDeliverySchema = createInsertSchema(alertDeliveries).omit({
+export const insertAlertDeliverySchema = createInsertSchema(
+  alertDeliveries,
+).omit({
   id: true,
   deliveredAt: true,
 });
 
-export const insertEmergencyServiceSchema = createInsertSchema(emergencyServices).omit({
+export const insertEmergencyServiceSchema = createInsertSchema(
+  emergencyServices,
+).omit({
   id: true,
   createdAt: true,
 });
 
-export const insertEmergencyServiceCallSchema = createInsertSchema(emergencyServiceCalls).omit({
+export const insertEmergencyServiceCallSchema = createInsertSchema(
+  emergencyServiceCalls,
+).omit({
   id: true,
   callInitiated: true,
 });
 
-export const insertEvacuationRouteSchema = createInsertSchema(evacuationRoutes).omit({
+export const insertEvacuationRouteSchema = createInsertSchema(
+  evacuationRoutes,
+).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
 });
 
-export const insertEvacuationZoneSchema = createInsertSchema(evacuationZones).omit({
+export const insertEvacuationZoneSchema = createInsertSchema(
+  evacuationZones,
+).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
@@ -362,9 +402,13 @@ export type InsertAlert = z.infer<typeof insertAlertSchema>;
 export type AlertDelivery = typeof alertDeliveries.$inferSelect;
 export type InsertAlertDelivery = z.infer<typeof insertAlertDeliverySchema>;
 export type EmergencyService = typeof emergencyServices.$inferSelect;
-export type InsertEmergencyService = z.infer<typeof insertEmergencyServiceSchema>;
+export type InsertEmergencyService = z.infer<
+  typeof insertEmergencyServiceSchema
+>;
 export type EmergencyServiceCall = typeof emergencyServiceCalls.$inferSelect;
-export type InsertEmergencyServiceCall = z.infer<typeof insertEmergencyServiceCallSchema>;
+export type InsertEmergencyServiceCall = z.infer<
+  typeof insertEmergencyServiceCallSchema
+>;
 export type EvacuationRoute = typeof evacuationRoutes.$inferSelect;
 export type InsertEvacuationRoute = z.infer<typeof insertEvacuationRouteSchema>;
 export type EvacuationZone = typeof evacuationZones.$inferSelect;
