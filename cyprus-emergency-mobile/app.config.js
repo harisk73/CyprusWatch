@@ -7,37 +7,26 @@ export default {
     orientation: "portrait",
     icon: "./assets/icon.png",
     userInterfaceStyle: "light",
-    newArchEnabled: true,
+
     splash: {
       image: "./assets/splash-icon.png",
       resizeMode: "contain",
       backgroundColor: "#ffffff"
     },
     ios: {
-      supportsTablet: true,
-      bundleIdentifier: "com.cyprus.emergency.mobile"
+      supportsTablet: true
     },
     android: {
       adaptiveIcon: {
         foregroundImage: "./assets/adaptive-icon.png",
         backgroundColor: "#ffffff"
-      },
-      edgeToEdgeEnabled: true,
-      package: "com.cyprus.emergency.mobile"
+      }
     },
     web: {
       favicon: "./assets/favicon.png",
       bundler: "metro"
     },
-    plugins: [
-      "expo-location",
-      [
-        "expo-location",
-        {
-          locationAlwaysAndWhenInUsePermission: "Allow Cyprus Emergency to use your location for emergency reporting."
-        }
-      ]
-    ],
+    plugins: [],
     platforms: ["ios", "android", "web"]
   }
 };
