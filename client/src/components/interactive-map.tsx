@@ -161,10 +161,8 @@ export default function InteractiveMap({ isReadOnly = false, showReportButton = 
       }
     });
 
-    // Add emergency pins (only active ones if in read-only mode)
-    const pinsToShow = isReadOnly 
-      ? emergencyPins.filter(pin => pin.status === 'active')
-      : emergencyPins;
+    // Show only active emergency pins for emergency report page
+    const pinsToShow = emergencyPins.filter(pin => pin.status === 'active');
       
     pinsToShow.forEach((pin) => {
       const iconColor = getIconColor(pin.type);
@@ -181,11 +179,18 @@ export default function InteractiveMap({ isReadOnly = false, showReportButton = 
         isEmergencyPin: true
       }).addTo(mapInstanceRef.current);
 
+      const timeAgo = getTimeAgo(pin.createdAt || new Date());
+      
       marker.bindPopup(`
-        <strong>${getPinTypeLabel(pin.type)}</strong><br>
-        ${pin.description || 'No description'}<br>
-        <small>Reported: ${new Date(pin.createdAt!).toLocaleString()}</small><br>
-        <small>Status: ${pin.status}</small>
+        <div style="min-width: 200px;">
+          <strong>${getPinTypeLabel(pin.type)}</strong><br>
+          <span style="color: #666;">${pin.location || 'Location not specified'}</span><br>
+          ${pin.description ? `<p style="margin: 8px 0; color: #333;">${pin.description}</p>` : ''}
+          <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #eee; font-size: 12px; color: #888;">
+            <div>Reported: ${timeAgo}</div>
+            <div>Status: <span style="color: #D32F2F; font-weight: bold;">${pin.status.toUpperCase()}</span></div>
+          </div>
+        </div>
       `);
     });
   }, [emergencyPins, isMapReady]);
@@ -216,6 +221,20 @@ export default function InteractiveMap({ isReadOnly = false, showReportButton = 
     }
   };
 
+  // Helper function for time ago
+  const getTimeAgo = (date: string | Date) => {
+    const now = new Date();
+    const past = new Date(date);
+    const diffInMinutes = Math.floor((now.getTime() - past.getTime()) / (1000 * 60));
+    
+    if (diffInMinutes < 1) return "Just now";
+    if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
+    const diffInHours = Math.floor(diffInMinutes / 60);
+    if (diffInHours < 24) return `${diffInHours}h ago`;
+    const diffInDays = Math.floor(diffInHours / 24);
+    return `${diffInDays}d ago`;
+  };
+
   return (
     <section id="map" className="mb-8">
       <Card>
@@ -228,38 +247,11 @@ export default function InteractiveMap({ isReadOnly = false, showReportButton = 
               <p className="text-neutral-500">
                 {isReadOnly 
                   ? "View active emergency incidents across Cyprus"
-                  : "Click on the map to report emergencies or view active incidents"
+                  : "Click anywhere on the map to set location coordinates. Active emergency alerts are shown as colored pins."
                 }
               </p>
             </div>
-            <div className="flex space-x-2">
-              {!isReadOnly && (
-                <Select value={selectedPinType} onValueChange={setSelectedPinType}>
-                  <SelectTrigger className="w-48">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="z-50">
-                    <SelectItem value="fire">🔥 Fire</SelectItem>
-                    <SelectItem value="smoke">💨 Smoke</SelectItem>
-                    <SelectItem value="flood">🌊 Flood</SelectItem>
-                    <SelectItem value="accident">🚗 Accident</SelectItem>
-                    <SelectItem value="medical">🚑 Medical Emergency</SelectItem>
-                    <SelectItem value="weather">🌪️ Severe Weather</SelectItem>
-                    <SelectItem value="security">🚨 Security Issue</SelectItem>
-                    <SelectItem value="other">⚠️ Other</SelectItem>
-                  </SelectContent>
-                </Select>
-              )}
-              {showReportButton && (
-                <Button 
-                  className="bg-primary hover:bg-primary/90" 
-                  onClick={() => window.location.href = '/emergency-report'}
-                >
-                  <MapPin className="w-4 h-4 mr-2" />
-                  Report Emergency
-                </Button>
-              )}
-            </div>
+
           </div>
         </CardHeader>
         
