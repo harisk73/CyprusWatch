@@ -495,6 +495,98 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.post('/api/users', isSystemAdmin, async (req, res) => {
+    try {
+      const userData = req.body;
+      
+      // Validate required fields
+      if (!userData.email) {
+        return res.status(400).json({ message: "Email is required" });
+      }
+
+      // Check if user already exists
+      const existingUser = await storage.getUserByEmail(userData.email);
+      if (existingUser) {
+        return res.status(400).json({ message: "User with this email already exists" });
+      }
+
+      // Create user with a generated ID
+      const userToCreate = {
+        ...userData,
+        id: `user-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        villageId: userData.villageId || null,
+        phoneVerified: userData.phoneVerified || false,
+        alertsEnabled: userData.alertsEnabled || false,
+        isVillageAdmin: userData.isVillageAdmin || false,
+        isSystemAdmin: userData.isSystemAdmin || false,
+      };
+
+      const user = await storage.createUser(userToCreate);
+      res.json(user);
+    } catch (error) {
+      console.error("Error creating user:", error);
+      res.status(500).json({ message: "Failed to create user" });
+    }
+  });
+
+  app.post('/api/users/bulk-import', isSystemAdmin, async (req, res) => {
+    try {
+      const { users } = req.body;
+      
+      if (!Array.isArray(users)) {
+        return res.status(400).json({ message: "Users must be an array" });
+      }
+
+      const results = [];
+      const errors = [];
+
+      for (let i = 0; i < users.length; i++) {
+        const userData = users[i];
+        
+        try {
+          // Validate required fields
+          if (!userData.email) {
+            errors.push({ row: i + 1, error: "Email is required" });
+            continue;
+          }
+
+          // Check if user already exists
+          const existingUser = await storage.getUserByEmail(userData.email);
+          if (existingUser) {
+            errors.push({ row: i + 1, error: `User with email ${userData.email} already exists` });
+            continue;
+          }
+
+          // Create user with a generated ID
+          const userToCreate = {
+            ...userData,
+            id: `user-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+            villageId: userData.villageId || null,
+            phoneVerified: userData.phoneVerified || false,
+            alertsEnabled: userData.alertsEnabled || false,
+            isVillageAdmin: userData.isVillageAdmin || false,
+            isSystemAdmin: userData.isSystemAdmin || false,
+          };
+
+          const user = await storage.createUser(userToCreate);
+          results.push(user);
+        } catch (error) {
+          errors.push({ row: i + 1, error: error instanceof Error ? error.message : 'Unknown error' });
+        }
+      }
+
+      res.json({
+        success: results.length,
+        errors: errors.length,
+        results,
+        errorDetails: errors,
+      });
+    } catch (error) {
+      console.error("Error bulk importing users:", error);
+      res.status(500).json({ message: "Failed to import users" });
+    }
+  });
+
   app.put('/api/users/:id', isSystemAdmin, async (req, res) => {
     try {
       const { id } = req.params;

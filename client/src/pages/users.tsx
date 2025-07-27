@@ -66,6 +66,8 @@ export default function UsersPage() {
 
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
   // Redirect if not system admin
@@ -93,6 +95,40 @@ export default function UsersPage() {
   const { data: villages = [] } = useQuery<Village[]>({
     queryKey: ["/api/villages"],
     retry: false,
+  });
+
+  // Create user mutation
+  const createUserMutation = useMutation({
+    mutationFn: async (userData: Partial<User>) => {
+      const res = await apiRequest("POST", "/api/users", userData);
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/users"] });
+      setIsCreateDialogOpen(false);
+      toast({
+        title: "Success",
+        description: "User created successfully.",
+      });
+    },
+    onError: (error) => {
+      if (isUnauthorizedError(error)) {
+        toast({
+          title: "Unauthorized",
+          description: "You are logged out. Logging in again...",
+          variant: "destructive",
+        });
+        setTimeout(() => {
+          window.location.href = "/api/login";
+        }, 500);
+        return;
+      }
+      toast({
+        title: "Error",
+        description: "Failed to create user. Please try again.",
+        variant: "destructive",
+      });
+    },
   });
 
   // Update user mutation
@@ -125,6 +161,40 @@ export default function UsersPage() {
       toast({
         title: "Error",
         description: "Failed to update user. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Bulk import mutation
+  const bulkImportMutation = useMutation({
+    mutationFn: async (users: Partial<User>[]) => {
+      const res = await apiRequest("POST", "/api/users/bulk-import", { users });
+      return res.json();
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/users"] });
+      setIsImportDialogOpen(false);
+      toast({
+        title: "Import Complete",
+        description: `Successfully imported ${data.success} users. ${data.errors} errors.`,
+      });
+    },
+    onError: (error) => {
+      if (isUnauthorizedError(error)) {
+        toast({
+          title: "Unauthorized",
+          description: "You are logged out. Logging in again...",
+          variant: "destructive",
+        });
+        setTimeout(() => {
+          window.location.href = "/api/login";
+        }, 500);
+        return;
+      }
+      toast({
+        title: "Error",
+        description: "Failed to import users. Please try again.",
         variant: "destructive",
       });
     },
@@ -222,6 +292,16 @@ export default function UsersPage() {
           <p className="text-neutral-600 mt-2">
             Manage all users in the Cyprus Emergency Alert System
           </p>
+        </div>
+        <div className="flex items-center gap-3">
+          <Button onClick={() => setIsCreateDialogOpen(true)} className="flex items-center gap-2">
+            <Plus className="h-4 w-4" />
+            Add User
+          </Button>
+          <Button variant="outline" onClick={() => setIsImportDialogOpen(true)} className="flex items-center gap-2">
+            <Plus className="h-4 w-4" />
+            Import CSV
+          </Button>
         </div>
       </div>
 
@@ -407,6 +487,25 @@ export default function UsersPage() {
         </CardContent>
       </Card>
 
+      {/* Create User Dialog */}
+      <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Create New User</DialogTitle>
+          </DialogHeader>
+          <CreateUserForm
+            villages={villages}
+            onSave={(userData) => {
+              createUserMutation.mutate(userData);
+            }}
+            onCancel={() => {
+              setIsCreateDialogOpen(false);
+            }}
+            isLoading={createUserMutation.isPending}
+          />
+        </DialogContent>
+      </Dialog>
+
       {/* Edit User Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="max-w-2xl">
@@ -429,7 +528,227 @@ export default function UsersPage() {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Import CSV Dialog */}
+      <Dialog open={isImportDialogOpen} onOpenChange={setIsImportDialogOpen}>
+        <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>Import Users from CSV</DialogTitle>
+          </DialogHeader>
+          <ImportUsersForm
+            villages={villages}
+            onImport={(users) => {
+              bulkImportMutation.mutate(users);
+            }}
+            onCancel={() => {
+              setIsImportDialogOpen(false);
+            }}
+            isLoading={bulkImportMutation.isPending}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
+  );
+}
+
+// Create User Form Component
+interface CreateUserFormProps {
+  villages: Village[];
+  onSave: (userData: Partial<User>) => void;
+  onCancel: () => void;
+  isLoading: boolean;
+}
+
+function CreateUserForm({ villages, onSave, onCancel, isLoading }: CreateUserFormProps) {
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    villageId: "",
+    address: "",
+    isVillageAdmin: false,
+    isSystemAdmin: false,
+    phoneVerified: false,
+    alertsEnabled: false,
+    emergencyContactName: "",
+    emergencyContactPhone: "",
+    emergencyContactRelationship: "",
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!formData.email) {
+      return;
+    }
+    
+    const userData = {
+      ...formData,
+      villageId: formData.villageId || null,
+    };
+    
+    onSave(userData);
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <Label htmlFor="firstName">First Name</Label>
+          <Input
+            id="firstName"
+            value={formData.firstName}
+            onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+          />
+        </div>
+        <div>
+          <Label htmlFor="lastName">Last Name</Label>
+          <Input
+            id="lastName"
+            value={formData.lastName}
+            onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <Label htmlFor="email">Email *</Label>
+          <Input
+            id="email"
+            type="email"
+            required
+            value={formData.email}
+            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+          />
+        </div>
+        <div>
+          <Label htmlFor="phone">Phone Number</Label>
+          <Input
+            id="phone"
+            value={formData.phone}
+            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+          />
+        </div>
+      </div>
+
+      <div>
+        <Label htmlFor="village">Village</Label>
+        <Select value={formData.villageId} onValueChange={(value) => setFormData({ ...formData, villageId: value })}>
+          <SelectTrigger>
+            <SelectValue placeholder="Select village" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="">No Village</SelectItem>
+            {villages.map((village) => (
+              <SelectItem key={village.id} value={village.id}>
+                {village.name} ({village.district})
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div>
+        <Label htmlFor="address">Address</Label>
+        <Textarea
+          id="address"
+          value={formData.address}
+          onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+          rows={2}
+        />
+      </div>
+
+      <div className="grid grid-cols-3 gap-4">
+        <div>
+          <Label htmlFor="emergencyContactName">Emergency Contact Name</Label>
+          <Input
+            id="emergencyContactName"
+            value={formData.emergencyContactName}
+            onChange={(e) => setFormData({ ...formData, emergencyContactName: e.target.value })}
+          />
+        </div>
+        <div>
+          <Label htmlFor="emergencyContactPhone">Emergency Contact Phone</Label>
+          <Input
+            id="emergencyContactPhone"
+            value={formData.emergencyContactPhone}
+            onChange={(e) => setFormData({ ...formData, emergencyContactPhone: e.target.value })}
+          />
+        </div>
+        <div>
+          <Label htmlFor="emergencyContactRelationship">Relationship</Label>
+          <Input
+            id="emergencyContactRelationship"
+            value={formData.emergencyContactRelationship}
+            onChange={(e) => setFormData({ ...formData, emergencyContactRelationship: e.target.value })}
+          />
+        </div>
+      </div>
+
+      <div className="border-t pt-4">
+        <h3 className="font-medium mb-3">Permissions & Status</h3>
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <div>
+              <Label htmlFor="isSystemAdmin">System Administrator</Label>
+              <p className="text-sm text-neutral-500">Full system access and user management</p>
+            </div>
+            <Switch
+              id="isSystemAdmin"
+              checked={formData.isSystemAdmin}
+              onCheckedChange={(checked) => setFormData({ ...formData, isSystemAdmin: checked })}
+            />
+          </div>
+          
+          <div className="flex items-center justify-between">
+            <div>
+              <Label htmlFor="isVillageAdmin">Village Administrator</Label>
+              <p className="text-sm text-neutral-500">Admin access for assigned village</p>
+            </div>
+            <Switch
+              id="isVillageAdmin"
+              checked={formData.isVillageAdmin}
+              onCheckedChange={(checked) => setFormData({ ...formData, isVillageAdmin: checked })}
+            />
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div>
+              <Label htmlFor="phoneVerified">Phone Verified</Label>
+              <p className="text-sm text-neutral-500">Allow emergency alert posting</p>
+            </div>
+            <Switch
+              id="phoneVerified"
+              checked={formData.phoneVerified}
+              onCheckedChange={(checked) => setFormData({ ...formData, phoneVerified: checked })}
+            />
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div>
+              <Label htmlFor="alertsEnabled">Alerts Enabled</Label>
+              <p className="text-sm text-neutral-500">Can post emergency alerts</p>
+            </div>
+            <Switch
+              id="alertsEnabled"
+              checked={formData.alertsEnabled}
+              onCheckedChange={(checked) => setFormData({ ...formData, alertsEnabled: checked })}
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="flex justify-end gap-2 pt-4 border-t">
+        <Button type="button" variant="outline" onClick={onCancel}>
+          Cancel
+        </Button>
+        <Button type="submit" disabled={isLoading || !formData.email}>
+          {isLoading ? "Creating..." : "Create User"}
+        </Button>
+      </div>
+    </form>
   );
 }
 
@@ -627,5 +946,261 @@ function EditUserForm({ user, villages, onSave, onCancel, isLoading }: EditUserF
         </Button>
       </div>
     </form>
+  );
+}
+
+// Import Users Form Component
+interface ImportUsersFormProps {
+  villages: Village[];
+  onImport: (users: Partial<User>[]) => void;
+  onCancel: () => void;
+  isLoading: boolean;
+}
+
+function ImportUsersForm({ villages, onImport, onCancel, isLoading }: ImportUsersFormProps) {
+  const [csvData, setCsvData] = useState("");
+  const [parsedUsers, setParsedUsers] = useState<Partial<User>[]>([]);
+  const [showPreview, setShowPreview] = useState(false);
+
+  const parseCSV = (text: string) => {
+    const lines = text.trim().split('\n');
+    if (lines.length < 2) {
+      return [];
+    }
+
+    const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+    const users: Partial<User>[] = [];
+
+    for (let i = 1; i < lines.length; i++) {
+      const values = lines[i].split(',').map(v => v.trim());
+      const user: Partial<User> = {};
+
+      headers.forEach((header, index) => {
+        const value = values[index] || '';
+        
+        switch (header) {
+          case 'first_name':
+          case 'firstname':
+            user.firstName = value;
+            break;
+          case 'last_name':
+          case 'lastname':
+            user.lastName = value;
+            break;
+          case 'email':
+            user.email = value;
+            break;
+          case 'phone':
+          case 'phone_number':
+            user.phone = value;
+            break;
+          case 'village':
+          case 'village_name':
+            const village = villages.find(v => 
+              v.name.toLowerCase() === value.toLowerCase()
+            );
+            user.villageId = village?.id || null;
+            break;
+          case 'village_id':
+            user.villageId = value || null;
+            break;
+          case 'address':
+            user.address = value;
+            break;
+          case 'emergency_contact_name':
+            user.emergencyContactName = value;
+            break;
+          case 'emergency_contact_phone':
+            user.emergencyContactPhone = value;
+            break;
+          case 'emergency_contact_relationship':
+            user.emergencyContactRelationship = value;
+            break;
+          case 'is_village_admin':
+          case 'village_admin':
+            user.isVillageAdmin = value.toLowerCase() === 'true' || value === '1';
+            break;
+          case 'is_system_admin':
+          case 'system_admin':
+            user.isSystemAdmin = value.toLowerCase() === 'true' || value === '1';
+            break;
+          case 'phone_verified':
+            user.phoneVerified = value.toLowerCase() === 'true' || value === '1';
+            break;
+          case 'alerts_enabled':
+            user.alertsEnabled = value.toLowerCase() === 'true' || value === '1';
+            break;
+        }
+      });
+
+      if (user.email) {
+        users.push(user);
+      }
+    }
+
+    return users;
+  };
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const text = e.target?.result as string;
+        setCsvData(text);
+        const parsed = parseCSV(text);
+        setParsedUsers(parsed);
+        setShowPreview(true);
+      };
+      reader.readAsText(file);
+    }
+  };
+
+  const handleTextImport = () => {
+    const parsed = parseCSV(csvData);
+    setParsedUsers(parsed);
+    setShowPreview(true);
+  };
+
+  const handleImport = () => {
+    onImport(parsedUsers);
+  };
+
+  const getVillageName = (villageId: string | null) => {
+    if (!villageId) return "No Village";
+    const village = villages.find(v => v.id === villageId);
+    return village ? village.name : "Unknown Village";
+  };
+
+  return (
+    <div className="space-y-4">
+      {!showPreview ? (
+        <>
+          <div>
+            <h3 className="font-medium mb-2">Import Options</h3>
+            <p className="text-sm text-neutral-600 mb-4">
+              Choose one of the following methods to import users:
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="border rounded-lg p-4">
+              <h4 className="font-medium mb-2">Upload CSV File</h4>
+              <p className="text-sm text-neutral-600 mb-3">
+                Select a CSV file from your computer to import users.
+              </p>
+              <Input
+                type="file"
+                accept=".csv"
+                onChange={handleFileUpload}
+                className="mb-2"
+              />
+            </div>
+
+            <div className="border rounded-lg p-4">
+              <h4 className="font-medium mb-2">Paste CSV Data</h4>
+              <p className="text-sm text-neutral-600 mb-3">
+                Copy and paste CSV data directly into the text area.
+              </p>
+              <Textarea
+                placeholder="Paste CSV data here..."
+                value={csvData}
+                onChange={(e) => setCsvData(e.target.value)}
+                rows={6}
+                className="mb-2"
+              />
+              <Button 
+                onClick={handleTextImport}
+                disabled={!csvData.trim()}
+                size="sm"
+              >
+                Parse CSV Data
+              </Button>
+            </div>
+          </div>
+
+          <div className="bg-neutral-50 p-4 rounded-lg">
+            <h4 className="font-medium mb-2">CSV Format Requirements</h4>
+            <p className="text-sm text-neutral-600 mb-2">
+              Your CSV file should include the following headers (case-insensitive):
+            </p>
+            <div className="grid grid-cols-2 gap-2 text-sm">
+              <div>
+                <strong>Required:</strong>
+                <ul className="list-disc list-inside ml-2">
+                  <li>email</li>
+                </ul>
+              </div>
+              <div>
+                <strong>Optional:</strong>
+                <ul className="list-disc list-inside ml-2">
+                  <li>first_name, last_name</li>
+                  <li>phone, address</li>
+                  <li>village_name or village_id</li>
+                  <li>emergency_contact_name, emergency_contact_phone</li>
+                  <li>is_village_admin, is_system_admin (true/false)</li>
+                  <li>phone_verified, alerts_enabled (true/false)</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </>
+      ) : (
+        <>
+          <div className="flex items-center justify-between">
+            <h3 className="font-medium">Preview Users ({parsedUsers.length} found)</h3>
+            <Button variant="outline" onClick={() => setShowPreview(false)}>
+              Back to Import
+            </Button>
+          </div>
+
+          <div className="max-h-64 overflow-y-auto border rounded-lg">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Phone</TableHead>
+                  <TableHead>Village</TableHead>
+                  <TableHead>Admin</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {parsedUsers.map((user, index) => (
+                  <TableRow key={index}>
+                    <TableCell>
+                      {user.firstName || user.lastName 
+                        ? `${user.firstName || ""} ${user.lastName || ""}`.trim()
+                        : "—"
+                      }
+                    </TableCell>
+                    <TableCell>{user.email}</TableCell>
+                    <TableCell>{user.phone || "—"}</TableCell>
+                    <TableCell>{getVillageName(user.villageId)}</TableCell>
+                    <TableCell>
+                      {user.isSystemAdmin && <Badge variant="destructive" className="text-xs">System</Badge>}
+                      {user.isVillageAdmin && <Badge variant="secondary" className="text-xs">Village</Badge>}
+                      {!user.isSystemAdmin && !user.isVillageAdmin && <span className="text-neutral-500">User</span>}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+
+          <div className="flex justify-end gap-2 pt-4 border-t">
+            <Button type="button" variant="outline" onClick={onCancel}>
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleImport}
+              disabled={isLoading || parsedUsers.length === 0}
+            >
+              {isLoading ? "Importing..." : `Import ${parsedUsers.length} Users`}
+            </Button>
+          </div>
+        </>
+      )}
+    </div>
   );
 }
