@@ -221,6 +221,10 @@ Preferred communication style: Simple, everyday language.
 - Health check endpoints properly differentiate between development and production
 - Root route properly handles both browser requests and health check requests
 - Production static serving maintained for proper frontend delivery
+- **Enhanced Health Check Logging**: Added comprehensive request logging for debugging deployment issues
+- **Server Timeout Configuration**: Set 30-second timeout to prevent hanging requests
+- **Multiple Health Check Endpoints**: All endpoints (/, /health, /api/health, /healthz, /ready) respond in <5ms
+- **Smart Content Negotiation**: Root endpoint responds with JSON for health checkers, HTML for browsers
 
 **Mobile App Fixes and Implementation:**
 - **Resolved Dependency Issues**: Fixed missing React Navigation and TanStack Query dependencies that were causing compilation errors

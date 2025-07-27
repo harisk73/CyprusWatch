@@ -62,11 +62,23 @@ app.use((req, res, next) => {
   // this serves both the API and the client.
   // It is the only port that is not firewalled.
   const port = parseInt(process.env.PORT || '5000', 10);
+  const host = process.env.HOST || "0.0.0.0";
+  
+  // Set server timeout to 30 seconds to prevent hanging requests
+  server.timeout = 30000;
+  
   server.listen({
     port,
-    host: "0.0.0.0",
+    host,
     reusePort: true,
   }, () => {
-    log(`serving on port ${port}`);
+    log(`serving on ${host}:${port}`);
+    log(`NODE_ENV: ${process.env.NODE_ENV || 'development'}`);
+    log(`Health check endpoints available:`);
+    log(`  - http://${host}:${port}/`);
+    log(`  - http://${host}:${port}/health`);
+    log(`  - http://${host}:${port}/api/health`);
+    log(`  - http://${host}:${port}/healthz`);
+    log(`  - http://${host}:${port}/ready`);
   });
 })();

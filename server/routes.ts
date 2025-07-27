@@ -47,39 +47,70 @@ const isSystemAdmin: typeof isAuthenticated = async (req: any, res, next) => {
 };
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Health check endpoints for deployment
+  // Health check endpoints for deployment platforms
+  // These endpoints MUST respond quickly with 200 status for deployment to work
   app.get('/health', (req, res) => {
-    res.status(200).json({ 
-      status: 'ok', 
+    const response = { 
+      status: 'healthy', 
       timestamp: new Date().toISOString(),
-      environment: process.env.NODE_ENV || 'development'
-    });
+      environment: process.env.NODE_ENV || 'development',
+      uptime: Math.floor(process.uptime()),
+      port: process.env.PORT || '5000'
+    };
+    
+    console.log(`[HEALTH CHECK] ${req.method} ${req.path} from ${req.ip || req.get('x-forwarded-for') || 'unknown'}`);
+    res.status(200).json(response);
   });
 
   // Additional health check endpoints commonly used by deployment platforms
   app.get('/api/health', (req, res) => {
-    res.status(200).json({ 
-      status: 'ok', 
+    const response = { 
+      status: 'healthy', 
       timestamp: new Date().toISOString(),
-      environment: process.env.NODE_ENV || 'development'
-    });
+      environment: process.env.NODE_ENV || 'development',
+      api: true
+    };
+    
+    console.log(`[API HEALTH] ${req.method} ${req.path} from ${req.ip || req.get('x-forwarded-for') || 'unknown'}`);
+    res.status(200).json(response);
   });
 
   app.get('/healthz', (req, res) => {
-    res.status(200).json({ status: 'ok' });
+    console.log(`[HEALTHZ] ${req.method} ${req.path} from ${req.ip || req.get('x-forwarded-for') || 'unknown'}`);
+    res.status(200).json({ status: 'healthy' });
   });
 
   app.get('/ready', (req, res) => {
+    console.log(`[READY] ${req.method} ${req.path} from ${req.ip || req.get('x-forwarded-for') || 'unknown'}`);
     res.status(200).json({ status: 'ready' });
   });
 
   // Root health check for deployment health checks
   app.get('/', (req, res, next) => {
+    const userAgent = req.get('user-agent') || '';
+    const accept = req.get('accept') || '';
+    
+    // Log all root requests for debugging deployment issues
+    console.log(`[ROOT REQUEST] ${req.method} ${req.path} from ${req.ip || req.get('x-forwarded-for') || 'unknown'}`);
+    console.log(`[ROOT REQUEST] User-Agent: ${userAgent}`);
+    console.log(`[ROOT REQUEST] Accept: ${accept}`);
+    
     // For deployment health checks, respond with 200 for non-browser requests
-    if (req.headers.accept && !req.headers.accept.includes('text/html')) {
-      return res.status(200).json({ status: 'ok' });
+    // This includes curl, wget, deployment platform health checkers, etc.
+    if (!accept.includes('text/html')) {
+      const response = { 
+        status: 'healthy',
+        message: 'Cyprus Emergency Alert System API is running',
+        timestamp: new Date().toISOString(),
+        environment: process.env.NODE_ENV || 'development'
+      };
+      
+      console.log(`[ROOT HEALTH] Responding with health check for non-browser request`);
+      return res.status(200).json(response);
     }
-    // For browser requests or in development, continue to serve the app
+    
+    // For browser requests, continue to serve the app
+    console.log(`[ROOT BROWSER] Passing to next middleware for browser request`);
     next();
   });
 
