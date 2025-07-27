@@ -15,7 +15,7 @@ export default function Landing() {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-2">
               <Shield className="text-primary text-2xl" />
-              <h1 className="text-xl font-bold text-neutral-600">Cyprus Emergency Alert</h1>
+              <h1 className="text-xl font-bold text-neutral-600 hidden sm:block">Cyprus Emergency Alert</h1>
             </div>
             <div className="flex items-center space-x-4">
               <LanguageSwitcher />
