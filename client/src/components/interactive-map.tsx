@@ -17,7 +17,12 @@ declare global {
   }
 }
 
-export default function InteractiveMap() {
+interface InteractiveMapProps {
+  isReadOnly?: boolean;
+  showReportButton?: boolean;
+}
+
+export default function InteractiveMap({ isReadOnly = false, showReportButton = true }: InteractiveMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<any>(null);
   const [selectedPinType, setSelectedPinType] = useState("fire");
@@ -105,36 +110,38 @@ export default function InteractiveMap() {
       });
 
       // Map click handler for adding new pins or selecting location
-      map.on('click', (e: any) => {
-        const { lat, lng } = e.latlng;
-        
-        // Emit custom event for emergency reporting page to listen to
-        const mapClickEvent = new CustomEvent('mapClick', {
-          detail: { lat, lng }
-        });
-        window.dispatchEvent(mapClickEvent);
-        
-        // Only create pins on home page (not on emergency reporting page)
-        if (window.location.pathname === '/emergency-report') {
-          return; // Just emit the event, don't create pin
-        }
-        
-        if (createPinMutation.isPending) {
-          toast({
-            title: "Please wait",
-            description: "Previous pin creation is still in progress.",
+      if (!isReadOnly) {
+        map.on('click', (e: any) => {
+          const { lat, lng } = e.latlng;
+          
+          // Emit custom event for emergency reporting page to listen to
+          const mapClickEvent = new CustomEvent('mapClick', {
+            detail: { lat, lng }
           });
-          return;
-        }
+          window.dispatchEvent(mapClickEvent);
+          
+          // Only create pins on home page (not on emergency reporting page)
+          if (window.location.pathname === '/emergency-report') {
+            return; // Just emit the event, don't create pin
+          }
+          
+          if (createPinMutation.isPending) {
+            toast({
+              title: "Please wait",
+              description: "Previous pin creation is still in progress.",
+            });
+            return;
+          }
 
-        createPinMutation.mutate({
-          type: selectedPinType,
-          latitude: lat.toString(),
-          longitude: lng.toString(),
-          description: `${selectedPinType} reported at coordinates`,
-          location: `Lat: ${lat.toFixed(4)}, Lng: ${lng.toFixed(4)}`,
+          createPinMutation.mutate({
+            type: selectedPinType,
+            latitude: lat.toString(),
+            longitude: lng.toString(),
+            description: `${selectedPinType} reported at coordinates`,
+            location: `Lat: ${lat.toFixed(4)}, Lng: ${lng.toFixed(4)}`,
+          });
         });
-      });
+      }
 
       mapInstanceRef.current = map;
       setIsMapReady(true);
@@ -154,8 +161,12 @@ export default function InteractiveMap() {
       }
     });
 
-    // Add emergency pins
-    emergencyPins.forEach((pin) => {
+    // Add emergency pins (only active ones if in read-only mode)
+    const pinsToShow = isReadOnly 
+      ? emergencyPins.filter(pin => pin.status === 'active')
+      : emergencyPins;
+      
+    pinsToShow.forEach((pin) => {
       const iconColor = getIconColor(pin.type);
       
       const customIcon = window.L.divIcon({
@@ -215,29 +226,39 @@ export default function InteractiveMap() {
                 Cyprus Emergency Map
               </CardTitle>
               <p className="text-neutral-500">
-                Click on the map to report emergencies or view active incidents
+                {isReadOnly 
+                  ? "View active emergency incidents across Cyprus"
+                  : "Click on the map to report emergencies or view active incidents"
+                }
               </p>
             </div>
             <div className="flex space-x-2">
-              <Select value={selectedPinType} onValueChange={setSelectedPinType}>
-                <SelectTrigger className="w-48">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="z-50">
-                  <SelectItem value="fire">🔥 Fire</SelectItem>
-                  <SelectItem value="smoke">💨 Smoke</SelectItem>
-                  <SelectItem value="flood">🌊 Flood</SelectItem>
-                  <SelectItem value="accident">🚗 Accident</SelectItem>
-                  <SelectItem value="medical">🚑 Medical Emergency</SelectItem>
-                  <SelectItem value="weather">🌪️ Severe Weather</SelectItem>
-                  <SelectItem value="security">🚨 Security Issue</SelectItem>
-                  <SelectItem value="other">⚠️ Other</SelectItem>
-                </SelectContent>
-              </Select>
-              <Button className="bg-primary hover:bg-primary/90">
-                <MapPin className="w-4 h-4 mr-2" />
-                Report Emergency
-              </Button>
+              {!isReadOnly && (
+                <Select value={selectedPinType} onValueChange={setSelectedPinType}>
+                  <SelectTrigger className="w-48">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="z-50">
+                    <SelectItem value="fire">🔥 Fire</SelectItem>
+                    <SelectItem value="smoke">💨 Smoke</SelectItem>
+                    <SelectItem value="flood">🌊 Flood</SelectItem>
+                    <SelectItem value="accident">🚗 Accident</SelectItem>
+                    <SelectItem value="medical">🚑 Medical Emergency</SelectItem>
+                    <SelectItem value="weather">🌪️ Severe Weather</SelectItem>
+                    <SelectItem value="security">🚨 Security Issue</SelectItem>
+                    <SelectItem value="other">⚠️ Other</SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
+              {showReportButton && (
+                <Button 
+                  className="bg-primary hover:bg-primary/90" 
+                  onClick={() => window.location.href = '/emergency-report'}
+                >
+                  <MapPin className="w-4 h-4 mr-2" />
+                  Report Emergency
+                </Button>
+              )}
             </div>
           </div>
         </CardHeader>
