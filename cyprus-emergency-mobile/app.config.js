@@ -22,10 +22,6 @@ export default {
         backgroundColor: "#ffffff"
       }
     },
-    web: {
-      favicon: "./assets/favicon.png",
-      bundler: "metro"
-    },
     plugins: [
       [
         "expo-location",
@@ -34,6 +30,6 @@ export default {
         }
       ]
     ],
-    platforms: ["ios", "android", "web"]
+    platforms: ["ios", "android"]
   }
 };
