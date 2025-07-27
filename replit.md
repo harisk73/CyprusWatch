@@ -129,6 +129,7 @@ Preferred communication style: Simple, everyday language.
    - Added hover effects and improved visual styling
    - Enhanced status badges with color coding for resolved alerts
    - Toggle button appears only when more than 5 alerts exist
+5. **Adjusted Cyprus Emergency Map**: Changed initial zoom level from 10 to 8 to show entire island on initial load
 
 **Final Dashboard Structure:**
 - **Row 1**: Two-column layout with Emergency Status (Active Emergencies + Active Warnings stacked) and Quick Actions

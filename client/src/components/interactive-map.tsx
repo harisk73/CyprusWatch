@@ -90,8 +90,8 @@ export default function InteractiveMap({ isReadOnly = false, showReportButton = 
         });
       }
 
-      // Initialize map centered on Cyprus
-      const map = window.L.map(mapRef.current).setView([35.1264, 33.4299], 10);
+      // Initialize map centered on Cyprus - zoomed out to show whole island
+      const map = window.L.map(mapRef.current).setView([35.1264, 33.4299], 8);
       
       window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap contributors'
