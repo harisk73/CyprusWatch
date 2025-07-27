@@ -201,6 +201,7 @@ const translations = {
     'profile.updated': 'Profile Updated',
     'profile.updatedDesc': 'Your profile has been updated successfully.',
     'profile.updateError': 'Failed to update profile. Please try again.',
+    'profile.emergencyOverride': 'Emergency alerts will override quiet hours',
 
     // Common
     'common.emergency': '🚨 Emergency',
@@ -408,6 +409,7 @@ const translations = {
     'profile.updated': 'Προφίλ Ενημερώθηκε',
     'profile.updatedDesc': 'Το προφίλ σας ενημερώθηκε επιτυχώς.',
     'profile.updateError': 'Αποτυχία ενημέρωσης προφίλ. Παρακαλώ δοκιμάστε ξανά.',
+    'profile.emergencyOverride': 'Οι ειδοποιήσεις έκτακτης ανάγκης θα παρακάμπτουν τις ώρες ησυχίας',
 
     // Common
     'common.emergency': '🚨 Έκτακτη Ανάγκη',

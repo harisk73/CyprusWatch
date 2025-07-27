@@ -380,7 +380,7 @@ export default function UserProfile() {
                   </div>
                 </div>
                 <p className="text-xs text-neutral-500 mt-2">
-                  Emergency alerts will override quiet hours
+                  {t('profile.emergencyOverride')}
                 </p>
               </div>
             </div>
