@@ -34,7 +34,7 @@ export default function NavigationHeader() {
                 <Button 
                   variant={location === "/" ? "default" : "ghost"} 
                   size="sm"
-                  className="flex items-center space-x-2"
+                  className="justify-center gap-2 whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 text-primary-foreground hover:bg-primary/90 h-9 rounded-md px-3 flex items-center space-x-2 bg-[#454545]"
                 >
                   <Home className="h-4 w-4" />
                   <span>{t('nav.dashboard')}</span>
