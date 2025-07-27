@@ -130,8 +130,8 @@ Preferred communication style: Simple, everyday language.
    - Enhanced status badges with color coding for resolved alerts
    - Toggle button appears only when more than 5 alerts exist
 
-**New Dashboard Structure:**
-- **Row 1**: Active Emergencies, Active Warnings, Quick Actions (3-column grid)
+**Final Dashboard Structure:**
+- **Row 1**: Two-column layout with Emergency Status (Active Emergencies + Active Warnings stacked) and Quick Actions
 - **Row 2**: Recent Alerts, Admin Management (2-column grid, admin card only for village admins)
 
 ## Recent Development Progress (January 27, 2025)

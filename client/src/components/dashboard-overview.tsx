@@ -110,57 +110,60 @@ export default function DashboardOverview() {
           </p>
         </div>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-        {/* Active Emergencies */}
-        <Card
-          className={`cursor-pointer transition-all duration-200 hover:shadow-lg ${
-            activeEmergencyPins.length > 0 ? "border-emergency shadow-lg hover:shadow-xl" : "hover:border-gray-300"
-          }`}
-          onClick={scrollToMap}
-        >
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="tracking-tight text-[18px] font-bold">
-              {t("dashboard.activeEmergencies")}
-            </CardTitle>
-            <AlertTriangle
-              className={`h-4 w-4 ${activeEmergencyPins.length > 0 ? "text-emergency" : "text-neutral-400"}`}
-            />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-emergency">
-              {activeEmergencyPins.length}
-            </div>
-            <p className="text-xs text-neutral-500">
-              {activeEmergencyPins.length > 0
-                ? t("dashboard.requiresAttention") + " • " + t("dashboard.clickToViewMap")
-                : t("dashboard.noActiveEmergencies")}
-            </p>
-          </CardContent>
-        </Card>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        {/* Left Column - Emergency Status */}
+        <div className="space-y-6">
+          {/* Active Emergencies */}
+          <Card
+            className={`cursor-pointer transition-all duration-200 hover:shadow-lg ${
+              activeEmergencyPins.length > 0 ? "border-emergency shadow-lg hover:shadow-xl" : "hover:border-gray-300"
+            }`}
+            onClick={scrollToMap}
+          >
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="tracking-tight text-[18px] font-bold">
+                {t("dashboard.activeEmergencies")}
+              </CardTitle>
+              <AlertTriangle
+                className={`h-4 w-4 ${activeEmergencyPins.length > 0 ? "text-emergency" : "text-neutral-400"}`}
+              />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-emergency">
+                {activeEmergencyPins.length}
+              </div>
+              <p className="text-xs text-neutral-500">
+                {activeEmergencyPins.length > 0
+                  ? t("dashboard.requiresAttention") + " • " + t("dashboard.clickToViewMap")
+                  : t("dashboard.noActiveEmergencies")}
+              </p>
+            </CardContent>
+          </Card>
 
-        {/* Warnings */}
-        <Card className={warningAlerts.length > 0 ? "border-warning" : ""}>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="tracking-tight text-[18px] font-bold">
-              {t("dashboard.activeWarnings")}
-            </CardTitle>
-            <Bell
-              className={`h-4 w-4 ${warningAlerts.length > 0 ? "text-warning" : "text-neutral-400"}`}
-            />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-warning">
-              {warningAlerts.length}
-            </div>
-            <p className="text-xs text-neutral-500">
-              {warningAlerts.length > 0
-                ? t("dashboard.monitorSituation")
-                : t("dashboard.noActiveWarnings")}
-            </p>
-          </CardContent>
-        </Card>
+          {/* Active Warnings */}
+          <Card className={warningAlerts.length > 0 ? "border-warning" : ""}>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="tracking-tight text-[18px] font-bold">
+                {t("dashboard.activeWarnings")}
+              </CardTitle>
+              <Bell
+                className={`h-4 w-4 ${warningAlerts.length > 0 ? "text-warning" : "text-neutral-400"}`}
+              />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-warning">
+                {warningAlerts.length}
+              </div>
+              <p className="text-xs text-neutral-500">
+                {warningAlerts.length > 0
+                  ? t("dashboard.monitorSituation")
+                  : t("dashboard.noActiveWarnings")}
+              </p>
+            </CardContent>
+          </Card>
+        </div>
 
-        {/* Quick Actions */}
+        {/* Right Column - Quick Actions */}
         <Card>
           <CardHeader>
             <CardTitle className="text-xl">{t("dashboard.quickActions")}</CardTitle>
