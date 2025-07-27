@@ -109,7 +109,7 @@ export default function DashboardOverview() {
           </p>
         </div>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         {/* Active Emergencies */}
         <Card
           className={`cursor-pointer transition-all duration-200 hover:shadow-lg ${
@@ -159,39 +159,93 @@ export default function DashboardOverview() {
           </CardContent>
         </Card>
 
-        {/* Villages Covered */}
+        {/* Quick Actions */}
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              {t("dashboard.villagesCovered")}
-            </CardTitle>
-            <MapPin className="h-4 w-4 text-neutral-400" />
+          <CardHeader>
+            <CardTitle className="text-xl">{t("dashboard.quickActions")}</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-primary">
-              {villages?.length || 0}
-            </div>
-            <p className="text-xs text-neutral-500">
-              {t("dashboard.acrossCyprus")}
-            </p>
-          </CardContent>
-        </Card>
+            <div className="space-y-3">
+              <Link href="/emergency-report" className="w-full">
+                <Button
+                  variant="outline"
+                  className="w-full p-4 h-auto bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20 hover:bg-primary/10"
+                >
+                  <div className="flex items-center space-x-3">
+                    <MapPin className="h-8 w-8 text-primary" />
+                    <div className="text-left">
+                      <h4 className="font-semibold text-neutral-700">
+                        {t("dashboard.reportEmergency")}
+                      </h4>
+                      <p className="text-sm text-neutral-500">
+                        {t("dashboard.openReportingPage")}
+                      </p>
+                    </div>
+                  </div>
+                </Button>
+              </Link>
 
-        {/* System Status */}
-        <Card className="border-success">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              {t("dashboard.systemStatus")}
-            </CardTitle>
-            <CheckCircle className="h-4 w-4 text-success" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-success">
-              {t("dashboard.online")}
+              <Link href="/emergency-services" className="w-full">
+                <Button
+                  variant="outline"
+                  className="w-full p-4 h-auto bg-gradient-to-r from-blue-50 to-blue-25 border-blue-200 hover:bg-blue-100"
+                >
+                  <div className="flex items-center space-x-3">
+                    <Phone className="h-8 w-8 text-blue-600" />
+                    <div className="text-left">
+                      <h4 className="font-semibold text-neutral-700">
+                        {t("dashboard.emergencyServices")}
+                      </h4>
+                      <p className="text-sm text-neutral-500">
+                        {t("dashboard.contactEmergencyServices")}
+                      </p>
+                    </div>
+                  </div>
+                </Button>
+              </Link>
+
+              {user?.isVillageAdmin && (
+                <Link href="/evacuation-planning" className="w-full">
+                  <Button
+                    variant="outline"
+                    className="w-full p-4 h-auto bg-gradient-to-r from-purple-50 to-purple-25 border-purple-200 hover:bg-purple-100"
+                  >
+                    <div className="flex items-center space-x-3">
+                      <Route className="h-8 w-8 text-purple-600" />
+                      <div className="text-left">
+                        <h4 className="font-semibold text-neutral-700">
+                          {t("dashboard.evacuationPlanning")}
+                        </h4>
+                        <p className="text-sm text-neutral-500">
+                          {t("dashboard.manageEvacuationRoutes")}
+                        </p>
+                      </div>
+                    </div>
+                  </Button>
+                </Link>
+              )}
+
+              {user?.isVillageAdmin && (
+                <Link href="/sms-alerts" className="w-full">
+                  <Button
+                    variant="outline"
+                    className="w-full p-4 h-auto bg-gradient-to-r from-green-50 to-green-25 border-green-200 hover:bg-green-100"
+                  >
+                    <div className="flex items-center space-x-3">
+                      <MessageSquare className="h-8 w-8 text-green-600" />
+                      <div className="text-left">
+                        <h4 className="font-semibold text-neutral-700">
+                          {t("dashboard.smsAlerts")}
+                        </h4>
+                        <p className="text-sm text-neutral-500">
+                          {t("dashboard.sendEmergencySms")}
+                        </p>
+                      </div>
+                    </div>
+                  </Button>
+                </Link>
+              )}
             </div>
-            <p className="text-xs text-neutral-500">
-              {t("dashboard.allSystemsOperational")}
-            </p>
           </CardContent>
         </Card>
       </div>
@@ -291,95 +345,6 @@ export default function DashboardOverview() {
             </CardContent>
           </Card>
         )}
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-xl">{t("dashboard.quickActions")}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              <Link href="/emergency-report" className="w-full">
-                <Button
-                  variant="outline"
-                  className="w-full p-4 h-auto bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20 hover:bg-primary/10"
-                >
-                  <div className="flex items-center space-x-3">
-                    <MapPin className="h-8 w-8 text-primary" />
-                    <div className="text-left">
-                      <h4 className="font-semibold text-neutral-700">
-                        {t("dashboard.reportEmergency")}
-                      </h4>
-                      <p className="text-sm text-neutral-500">
-                        {t("dashboard.openReportingPage")}
-                      </p>
-                    </div>
-                  </div>
-                </Button>
-              </Link>
-
-              <Link href="/emergency-services" className="w-full">
-                <Button
-                  variant="outline"
-                  className="w-full p-4 h-auto bg-gradient-to-r from-blue-50 to-blue-25 border-blue-200 hover:bg-blue-100"
-                >
-                  <div className="flex items-center space-x-3">
-                    <Phone className="h-8 w-8 text-blue-600" />
-                    <div className="text-left">
-                      <h4 className="font-semibold text-neutral-700">
-                        {t("dashboard.emergencyServices")}
-                      </h4>
-                      <p className="text-sm text-neutral-500">
-                        {t("dashboard.contactEmergencyServices")}
-                      </p>
-                    </div>
-                  </div>
-                </Button>
-              </Link>
-
-              {user?.isVillageAdmin && (
-                <Link href="/evacuation-planning" className="w-full">
-                  <Button
-                    variant="outline"
-                    className="w-full p-4 h-auto bg-gradient-to-r from-purple-50 to-purple-25 border-purple-200 hover:bg-purple-100"
-                  >
-                    <div className="flex items-center space-x-3">
-                      <Route className="h-8 w-8 text-purple-600" />
-                      <div className="text-left">
-                        <h4 className="font-semibold text-neutral-700">
-                          {t("dashboard.evacuationPlanning")}
-                        </h4>
-                        <p className="text-sm text-neutral-500">
-                          {t("dashboard.manageEvacuationRoutes")}
-                        </p>
-                      </div>
-                    </div>
-                  </Button>
-                </Link>
-              )}
-
-              {user?.isVillageAdmin && (
-                <Link href="/sms-alerts" className="w-full">
-                  <Button
-                    variant="outline"
-                    className="w-full p-4 h-auto bg-gradient-to-r from-green-50 to-green-25 border-green-200 hover:bg-green-100"
-                  >
-                    <div className="flex items-center space-x-3">
-                      <MessageSquare className="h-8 w-8 text-green-600" />
-                      <div className="text-left">
-                        <h4 className="font-semibold text-neutral-700">
-                          {t("dashboard.smsAlerts")}
-                        </h4>
-                        <p className="text-sm text-neutral-500">
-                          {t("dashboard.sendEmergencySms")}
-                        </p>
-                      </div>
-                    </div>
-                  </Button>
-                </Link>
-              )}
-            </div>
-          </CardContent>
-        </Card>
       </div>
 
 
