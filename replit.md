@@ -117,6 +117,25 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Development Progress (January 27, 2025)
 
+### Latest Dashboard Layout Improvements
+
+**Dashboard Restructuring Completed:**
+1. **Removed Cards from Top Row**: Eliminated Villages Covered and System Status cards from the main dashboard
+2. **Moved Quick Actions to Top Row**: Repositioned Quick Actions card to the top row alongside Active Emergencies and Warnings
+3. **Added Second Row Layout**: Created a dedicated second row for Recent Alerts and Admin Management
+4. **Enhanced Recent Alerts Card**: 
+   - Shows last 5 alerts by default with "View More" toggle functionality
+   - Displays all alerts (both active and resolved) sorted by creation date
+   - Added hover effects and improved visual styling
+   - Enhanced status badges with color coding for resolved alerts
+   - Toggle button appears only when more than 5 alerts exist
+
+**New Dashboard Structure:**
+- **Row 1**: Active Emergencies, Active Warnings, Quick Actions (3-column grid)
+- **Row 2**: Recent Alerts, Admin Management (2-column grid, admin card only for village admins)
+
+## Recent Development Progress (January 27, 2025)
+
 ### Current Work Session Status
 
 **Major Feature Completed - Phone Verification Anti-Fraud System:**

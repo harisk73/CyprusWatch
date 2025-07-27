@@ -31,6 +31,7 @@ export default function DashboardOverview() {
   const { user } = useAuth() as { user: User | undefined };
   const { t } = useLanguage();
   const queryClient = useQueryClient();
+  const [showAllAlerts, setShowAllAlerts] = useState(false);
 
   const { data: alerts } = useQuery<Alert[]>({
     queryKey: ["/api/alerts"],
@@ -249,9 +250,91 @@ export default function DashboardOverview() {
           </CardContent>
         </Card>
       </div>
-      {/* Quick Actions */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-{user?.isVillageAdmin ? (
+
+      {/* Second Row - Recent Alerts and Admin Management */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        {/* Recent Alerts Card */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+            <CardTitle className="text-xl">{t("dashboard.recentAlerts")}</CardTitle>
+            {emergencyPins && emergencyPins.length > 5 && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowAllAlerts(!showAllAlerts)}
+                className="text-xs"
+              >
+                {showAllAlerts ? "Show Less" : "View More"}
+              </Button>
+            )}
+          </CardHeader>
+          <CardContent>
+            {emergencyPins && emergencyPins.length > 0 ? (
+              <div className="space-y-3">
+                {emergencyPins
+                  .sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime())
+                  .slice(0, showAllAlerts ? emergencyPins.length : 5)
+                  .map((pin) => (
+                  <div
+                    key={pin.id}
+                    className="flex items-center justify-between p-3 bg-neutral-50 rounded-lg hover:bg-neutral-100 transition-colors"
+                  >
+                    <div className="flex items-center space-x-3">
+                      <div
+                        className={`w-3 h-3 rounded-full ${
+                          pin.type === "fire" || pin.type === "medical"
+                            ? "bg-emergency"
+                            : pin.type === "accident" || pin.type === "weather"
+                              ? "bg-warning"
+                              : "bg-info"
+                        }`}
+                      ></div>
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-2">
+                          <p className="font-medium text-sm">{getEmergencyTypeDisplay(pin.type)}</p>
+                          <span className="text-xs text-neutral-400">•</span>
+                          <p className="text-xs text-neutral-500">{getTimeAgo(pin.createdAt || new Date())}</p>
+                        </div>
+                        <div className="flex items-center space-x-1 mt-1">
+                          <MapPin className="h-3 w-3 text-neutral-400" />
+                          <p className="text-xs text-neutral-500 truncate">
+                            {pin.location || `${Number(pin.latitude).toFixed(4)}, ${Number(pin.longitude).toFixed(4)}`}
+                          </p>
+                        </div>
+                        {pin.description && (
+                          <p className="text-xs text-neutral-600 mt-1 truncate">{pin.description}</p>
+                        )}
+                      </div>
+                    </div>
+                    <Badge
+                      variant="secondary"
+                      className={`text-xs ${
+                        pin.type === "fire" || pin.type === "medical"
+                          ? "bg-emergency/20 text-emergency"
+                          : pin.type === "accident" || pin.type === "weather"
+                            ? "bg-warning/20 text-warning"
+                            : "bg-info/20 text-info"
+                      } ${
+                        pin.status === "resolved" ? "bg-green-100 text-green-700" : ""
+                      }`}
+                    >
+                      {pin.status}
+                    </Badge>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8 text-neutral-500">
+                <Bell className="h-12 w-12 mx-auto mb-4 text-neutral-300" />
+                <p>{t("dashboard.noRecentAlerts")}</p>
+                <p className="text-sm">{t("dashboard.allQuiet")}</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Admin Management Card */}
+        {user?.isVillageAdmin && (
           <Card>
             <CardHeader>
               <CardTitle className="text-xl">{t("dashboard.manageActiveAlerts")}</CardTitle>
@@ -272,73 +355,6 @@ export default function DashboardOverview() {
                 <div className="text-center py-8 text-neutral-500">
                   <Bell className="h-12 w-12 mx-auto mb-4 text-neutral-300" />
                   <p>{t("dashboard.noActiveAlerts")}</p>
-                  <p className="text-sm">{t("dashboard.allQuiet")}</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        ) : (
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-xl">{t("dashboard.recentAlerts")}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {activeEmergencyPins.length > 0 ? (
-                <div className="space-y-3">
-                  {activeEmergencyPins
-                    .sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime())
-                    .slice(0, 3)
-                    .map((pin) => (
-                    <div
-                      key={pin.id}
-                      className="flex items-center justify-between p-3 bg-neutral-50 rounded-lg"
-                    >
-                      <div className="flex items-center space-x-3">
-                        <div
-                          className={`w-3 h-3 rounded-full ${
-                            pin.type === "fire" || pin.type === "medical"
-                              ? "bg-emergency"
-                              : pin.type === "accident" || pin.type === "weather"
-                                ? "bg-warning"
-                                : "bg-info"
-                          }`}
-                        ></div>
-                        <div className="flex-1">
-                          <div className="flex items-center space-x-2">
-                            <p className="font-medium text-sm">{getEmergencyTypeDisplay(pin.type)}</p>
-                            <span className="text-xs text-neutral-400">•</span>
-                            <p className="text-xs text-neutral-500">{getTimeAgo(pin.createdAt || new Date())}</p>
-                          </div>
-                          <div className="flex items-center space-x-1 mt-1">
-                            <MapPin className="h-3 w-3 text-neutral-400" />
-                            <p className="text-xs text-neutral-500 truncate">
-                              {pin.location || `${Number(pin.latitude).toFixed(4)}, ${Number(pin.longitude).toFixed(4)}`}
-                            </p>
-                          </div>
-                          {pin.description && (
-                            <p className="text-xs text-neutral-600 mt-1 truncate">{pin.description}</p>
-                          )}
-                        </div>
-                      </div>
-                      <Badge
-                        variant="secondary"
-                        className={
-                          pin.type === "fire" || pin.type === "medical"
-                            ? "bg-emergency/20 text-emergency text-xs"
-                            : pin.type === "accident" || pin.type === "weather"
-                              ? "bg-warning/20 text-warning text-xs"
-                              : "bg-info/20 text-info text-xs"
-                        }
-                      >
-                        {pin.status}
-                      </Badge>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-8 text-neutral-500">
-                  <Bell className="h-12 w-12 mx-auto mb-4 text-neutral-300" />
-                  <p>{t("dashboard.noRecentAlerts")}</p>
                   <p className="text-sm">{t("dashboard.allQuiet")}</p>
                 </div>
               )}
