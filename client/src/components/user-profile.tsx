@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -48,6 +48,35 @@ export default function UserProfile() {
   const { data: villages } = useQuery<Village[]>({
     queryKey: ["/api/villages"],
   });
+
+  // Update form when user data becomes available
+  useEffect(() => {
+    if (user) {
+      setProfileForm({
+        firstName: user.firstName || "",
+        lastName: user.lastName || "",
+        email: user.email || "",
+        phone: user.phone || "",
+        villageId: user.villageId || "",
+        address: user.address || "",
+        emergencyContactName: user.emergencyContactName || "",
+        emergencyContactPhone: user.emergencyContactPhone || "",
+        emergencyContactRelationship: user.emergencyContactRelationship || "",
+        emergencyContactSecondary: user.emergencyContactSecondary || "",
+        notificationPreferences: user.notificationPreferences || {
+          emergency: true,
+          weather: true,
+          roadClosures: true,
+          community: false,
+          browserNotifications: true,
+          smsNotifications: true,
+          emailNotifications: false,
+          quietHoursFrom: "22:00",
+          quietHoursTo: "07:00"
+        },
+      });
+    }
+  }, [user]);
 
   const updateProfileMutation = useMutation({
     mutationFn: async (profileData: any) => {
