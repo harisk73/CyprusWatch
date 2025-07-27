@@ -1,3 +1,4 @@
+
 export default {
   expo: {
     name: "cyprus-emergency-mobile",
@@ -13,19 +14,30 @@ export default {
       backgroundColor: "#ffffff"
     },
     ios: {
-      supportsTablet: true
+      supportsTablet: true,
+      bundleIdentifier: "com.cyprus.emergency.mobile"
     },
     android: {
       adaptiveIcon: {
         foregroundImage: "./assets/adaptive-icon.png",
         backgroundColor: "#ffffff"
       },
-      edgeToEdgeEnabled: true
+      edgeToEdgeEnabled: true,
+      package: "com.cyprus.emergency.mobile"
     },
     web: {
       favicon: "./assets/favicon.png",
       bundler: "metro"
     },
+    plugins: [
+      "expo-location",
+      [
+        "expo-location",
+        {
+          locationAlwaysAndWhenInUsePermission: "Allow Cyprus Emergency to use your location for emergency reporting."
+        }
+      ]
+    ],
     platforms: ["ios", "android", "web"]
   }
 };
