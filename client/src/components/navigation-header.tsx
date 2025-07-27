@@ -20,7 +20,7 @@ export default function NavigationHeader() {
           {/* Logo and Main Navigation */}
           <div className="flex items-center space-x-8">
             <Link href="/" className="flex items-center space-x-2">
-              <div className="bg-primary p-2 rounded-lg">
+              <div className="p-2 rounded-lg bg-[#ff0004]">
                 <AlertTriangle className="h-6 w-6 text-white" />
               </div>
               <div>
