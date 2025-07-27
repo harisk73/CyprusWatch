@@ -48,10 +48,24 @@ cd cyprus-emergency-mobile
 npm install
 ```
 
-### Required Dependencies for Full Functionality
-To enable all features, install these additional dependencies:
+### Fixing Dependency Issues
+
+If you encounter the "react-native-web is not installed" error:
+
+**Option 1: Install Missing Dependencies**
 ```bash
-npx expo install expo-location expo-constants react-native-web @expo/metro-runtime
+cd cyprus-emergency-mobile
+rm -rf node_modules package-lock.json
+npm install
+npm install react-native-web @expo/metro-runtime
+```
+
+**Option 2: Use the HTML Demo (Recommended)**
+The `demo.html` file provides a fully functional mobile app preview without any dependency issues. Open it in your browser to see all features working.
+
+**Option 3: Run Web Version**
+```bash
+npx expo start --web
 ```
 
 ### Running the App
