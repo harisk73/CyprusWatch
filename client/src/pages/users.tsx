@@ -40,6 +40,7 @@ import { useLanguage } from "@/contexts/language-context";
 import { useAuth } from "@/hooks/useAuth";
 import { apiRequest } from "@/lib/queryClient";
 import { isUnauthorizedError } from "@/lib/authUtils";
+import NavigationHeader from "@/components/navigation-header";
 import {
   Users,
   Edit,
@@ -55,7 +56,9 @@ import {
   CheckCircle,
   XCircle,
   Crown,
+  ArrowLeft,
 } from "lucide-react";
+import { Link } from "wouter";
 import type { User, Village } from "@shared/schema";
 
 export default function UsersPage() {
@@ -72,7 +75,7 @@ export default function UsersPage() {
 
   // Redirect if not system admin
   useEffect(() => {
-    if (currentUser && !currentUser.isSystemAdmin) {
+    if (currentUser && !currentUser?.isSystemAdmin) {
       toast({
         title: "Access Denied",
         description: "System administrator access required.",
@@ -268,21 +271,44 @@ export default function UsersPage() {
 
   if (!currentUser?.isSystemAdmin) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Card className="p-8">
-          <div className="text-center space-y-4">
-            <Shield className="h-16 w-16 mx-auto text-red-500" />
-            <h2 className="text-2xl font-bold">Access Denied</h2>
-            <p className="text-neutral-600">System administrator access required.</p>
-          </div>
-        </Card>
+      <div className="font-inter bg-neutral-100 min-h-screen">
+        <NavigationHeader />
+        <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <Card className="p-8">
+            <div className="text-center space-y-4">
+              <Shield className="h-16 w-16 mx-auto text-red-500" />
+              <h2 className="text-2xl font-bold">Access Denied</h2>
+              <p className="text-neutral-600">System administrator access required.</p>
+            </div>
+          </Card>
+        </main>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      {/* Header */}
+    <div className="font-inter bg-neutral-100 min-h-screen">
+      <NavigationHeader />
+      
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Header */}
+        <div className="mb-6">
+          <div className="flex items-center space-x-4 mb-4">
+            <Link href="/">
+              <Button variant="outline" size="sm">
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Back to Dashboard
+              </Button>
+            </Link>
+            <div className="flex items-center space-x-2">
+              <Users className="h-8 w-8 text-blue-600" />
+              <h1 className="text-3xl font-bold text-neutral-700">User Management</h1>
+            </div>
+          </div>
+          <p className="text-neutral-500">
+            Manage system users, permissions, and access controls. Create new users, edit existing profiles, and maintain user data.
+          </p>
+        </div>
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold flex items-center gap-3">
@@ -547,6 +573,7 @@ export default function UsersPage() {
           />
         </DialogContent>
       </Dialog>
+      </main>
     </div>
   );
 }
@@ -1176,7 +1203,7 @@ function ImportUsersForm({ villages, onImport, onCancel, isLoading }: ImportUser
                     </TableCell>
                     <TableCell>{user.email}</TableCell>
                     <TableCell>{user.phone || "—"}</TableCell>
-                    <TableCell>{getVillageName(user.villageId)}</TableCell>
+                    <TableCell>{getVillageName(user.villageId || null)}</TableCell>
                     <TableCell>
                       {user.isSystemAdmin && <Badge variant="destructive" className="text-xs">System</Badge>}
                       {user.isVillageAdmin && <Badge variant="secondary" className="text-xs">Village</Badge>}
