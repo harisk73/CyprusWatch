@@ -565,7 +565,7 @@ function CreateUserForm({ villages, onSave, onCancel, isLoading }: CreateUserFor
     lastName: "",
     email: "",
     phone: "",
-    villageId: "",
+    villageId: "none",
     address: "",
     isVillageAdmin: false,
     isSystemAdmin: false,
@@ -585,7 +585,7 @@ function CreateUserForm({ villages, onSave, onCancel, isLoading }: CreateUserFor
     
     const userData = {
       ...formData,
-      villageId: formData.villageId || null,
+      villageId: formData.villageId === 'none' ? null : formData.villageId,
     };
     
     onSave(userData);
@@ -640,7 +640,7 @@ function CreateUserForm({ villages, onSave, onCancel, isLoading }: CreateUserFor
             <SelectValue placeholder="Select village" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">No Village</SelectItem>
+            <SelectItem value="none">No Village</SelectItem>
             {villages.map((village) => (
               <SelectItem key={village.id} value={village.id}>
                 {village.name} ({village.district})
@@ -767,7 +767,7 @@ function EditUserForm({ user, villages, onSave, onCancel, isLoading }: EditUserF
     lastName: user.lastName || "",
     email: user.email || "",
     phone: user.phone || "",
-    villageId: user.villageId || "",
+    villageId: user.villageId || "none",
     address: user.address || "",
     isVillageAdmin: user.isVillageAdmin || false,
     isSystemAdmin: user.isSystemAdmin || false,
@@ -783,7 +783,7 @@ function EditUserForm({ user, villages, onSave, onCancel, isLoading }: EditUserF
     
     const updates = {
       ...formData,
-      villageId: formData.villageId || null,
+      villageId: formData.villageId === 'none' ? null : formData.villageId,
     };
     
     onSave(updates);
@@ -837,7 +837,7 @@ function EditUserForm({ user, villages, onSave, onCancel, isLoading }: EditUserF
             <SelectValue placeholder="Select village" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">No Village</SelectItem>
+            <SelectItem value="none">No Village</SelectItem>
             {villages.map((village) => (
               <SelectItem key={village.id} value={village.id}>
                 {village.name} ({village.district})
