@@ -23,7 +23,7 @@ export default function NavigationHeader() {
               <div className="p-2 rounded-lg bg-[#ff0004]">
                 <AlertTriangle className="h-6 w-6 text-white" />
               </div>
-              <div>
+              <div className="hidden sm:block">
                 <h1 className="text-xl font-bold text-neutral-700">Cyprus Alert</h1>
                 <p className="text-xs text-neutral-500">Emergency Response System</p>
               </div>
