@@ -31,12 +31,14 @@ import {
   type InsertSmsAlert,
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, inArray, and, desc } from "drizzle-orm";
+import { eq, inArray, and, desc, sql } from "drizzle-orm";
 
 export interface IStorage {
   // User operations (mandatory for Replit Auth)
   getUser(id: string): Promise<User | undefined>;
   upsertUser(user: UpsertUser): Promise<User>;
+  updateUserVerification(id: string, data: { phone: string, phoneVerificationCode: string, phoneVerificationExpiry: Date }): Promise<void>;
+  verifyUserPhone(id: string): Promise<void>;
 
   // Village operations
   getAllVillages(): Promise<Village[]>;
@@ -121,6 +123,31 @@ export class DatabaseStorage implements IStorage {
       })
       .returning();
     return user;
+  }
+
+  async updateUserVerification(id: string, data: { phone: string, phoneVerificationCode: string, phoneVerificationExpiry: Date }): Promise<void> {
+    await db
+      .update(users)
+      .set({
+        phone: data.phone,
+        phoneVerificationCode: data.phoneVerificationCode,
+        phoneVerificationExpiry: data.phoneVerificationExpiry,
+        updatedAt: new Date(),
+      })
+      .where(eq(users.id, id));
+  }
+
+  async verifyUserPhone(id: string): Promise<void> {
+    await db
+      .update(users)
+      .set({
+        phoneVerified: true,
+        alertsEnabled: true,
+        phoneVerificationCode: null,
+        phoneVerificationExpiry: null,
+        updatedAt: new Date(),
+      })
+      .where(eq(users.id, id));
   }
 
   // Village operations
@@ -272,13 +299,7 @@ export class DatabaseStorage implements IStorage {
       );
   }
 
-  // Admin operations
-  async getUsersByVillages(villageIds: string[]): Promise<User[]> {
-    return await db
-      .select()
-      .from(users)
-      .where(inArray(users.villageId, villageIds));
-  }
+  // Admin operations (moved implementation to above)
 
   // Emergency services operations
   async getEmergencyServices(): Promise<EmergencyService[]> {

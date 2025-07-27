@@ -8,14 +8,21 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertTriangle, Send, MapPin, Crosshair, ArrowLeft, Home, Map } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/contexts/language-context";
+import { useAuth } from "@/hooks/useAuth";
 import { apiRequest } from "@/lib/queryClient";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import { Link, useLocation } from "wouter";
 import NavigationHeader from "@/components/navigation-header";
 import InteractiveMap from "@/components/interactive-map";
+import PhoneVerification from "@/components/phone-verification";
+import AntiFraudInfo from "@/components/anti-fraud-info";
+import type { User } from "@shared/schema";
 
 export default function EmergencyReport() {
   const [, setLocation] = useLocation();
+  const { user } = useAuth() as { user: User | undefined };
+  const { t } = useLanguage();
   const [reportForm, setReportForm] = useState({
     type: "",
     location: "",
@@ -24,6 +31,7 @@ export default function EmergencyReport() {
   });
   const [isGettingLocation, setIsGettingLocation] = useState(false);
   const [locationMethod, setLocationMethod] = useState<"manual" | "gps">("manual");
+  const [showVerification, setShowVerification] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -114,7 +122,7 @@ export default function EmergencyReport() {
         setLocation("/");
       }, 2000);
     },
-    onError: (error) => {
+    onError: (error: any) => {
       if (isUnauthorizedError(error)) {
         toast({
           title: "Unauthorized",
@@ -126,6 +134,18 @@ export default function EmergencyReport() {
         }, 500);
         return;
       }
+      
+      // Check for phone verification requirement
+      if (error.message && error.message.includes("Phone verification required")) {
+        setShowVerification(true);
+        toast({
+          title: "Phone Verification Required",
+          description: "You need to verify your phone number before posting emergency alerts.",
+          variant: "destructive",
+        });
+        return;
+      }
+      
       toast({
         title: "Error",
         description: "Failed to submit emergency report. Please try again.",
@@ -136,6 +156,17 @@ export default function EmergencyReport() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Check if user phone is verified
+    if (!user?.phoneVerified) {
+      setShowVerification(true);
+      toast({
+        title: "Phone Verification Required",
+        description: "Please verify your phone number before submitting emergency reports.",
+        variant: "destructive",
+      });
+      return;
+    }
     
     if (!reportForm.type || !reportForm.location.trim()) {
       toast({
@@ -240,6 +271,22 @@ export default function EmergencyReport() {
             </Button>
           </div>
         </div>
+
+        {/* Phone Verification Section */}
+        {showVerification && (
+          <div className="mb-8">
+            <PhoneVerification
+              userPhone={user?.phone}
+              onVerificationComplete={() => {
+                setShowVerification(false);
+                toast({
+                  title: "Verification Complete",
+                  description: "You can now submit emergency reports!",
+                });
+              }}
+            />
+          </div>
+        )}
 
         <div className="space-y-8">
           {/* Emergency Form */}
@@ -381,6 +428,11 @@ export default function EmergencyReport() {
               <InteractiveMap />
             </CardContent>
           </Card>
+        </div>
+
+        {/* Anti-Fraud Information Section */}
+        <div className="mt-8">
+          <AntiFraudInfo />
         </div>
       </main>
     </div>

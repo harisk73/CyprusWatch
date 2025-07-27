@@ -3,6 +3,7 @@ import { relations } from 'drizzle-orm';
 import {
   boolean,
   index,
+  integer,
   jsonb,
   pgTable,
   text,
@@ -33,6 +34,10 @@ export const users = pgTable("users", {
   lastName: varchar("last_name"),
   profileImageUrl: varchar("profile_image_url"),
   phone: varchar("phone"),
+  phoneVerified: boolean("phone_verified").default(false),
+  phoneVerificationCode: varchar("phone_verification_code"),
+  phoneVerificationExpiry: timestamp("phone_verification_expiry"),
+  alertsEnabled: boolean("alerts_enabled").default(false), // Only enabled after phone verification
   villageId: varchar("village_id"),
   address: text("address"),
   emergencyContactName: varchar("emergency_contact_name"),
@@ -86,6 +91,8 @@ export const emergencyPins = pgTable("emergency_pins", {
   description: text("description"),
   location: varchar("location"),
   status: varchar("status").default("active"), // active, resolved, false_alarm
+  verified: boolean("verified").default(false), // Verified by admins/authorities
+  reportedCount: integer("reported_count").default(0), // Times this was reported as false
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

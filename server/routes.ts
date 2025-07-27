@@ -43,6 +43,74 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Phone verification routes
+  app.post('/api/auth/send-verification', isAuthenticated, async (req: any, res) => {
+    try {
+      const { phone } = req.body;
+      const userId = req.user.claims.sub;
+
+      if (!phone || typeof phone !== 'string') {
+        return res.status(400).json({ message: "Valid phone number is required" });
+      }
+
+      // Generate a 6-digit verification code
+      const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+      const expiryTime = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
+      // Update user with verification code
+      await storage.updateUserVerification(userId, {
+        phone,
+        phoneVerificationCode: verificationCode,
+        phoneVerificationExpiry: expiryTime,
+      });
+
+      // In production, this would send SMS via Twilio/etc
+      console.log(`SMS verification code for ${phone}: ${verificationCode}`);
+      
+      res.json({ 
+        message: "Verification code sent",
+        // Include code in development for testing
+        ...(process.env.NODE_ENV === 'development' && { verificationCode })
+      });
+    } catch (error) {
+      console.error("Error sending verification code:", error);
+      res.status(500).json({ message: "Failed to send verification code" });
+    }
+  });
+
+  app.post('/api/auth/verify-phone', isAuthenticated, async (req: any, res) => {
+    try {
+      const { code } = req.body;
+      const userId = req.user.claims.sub;
+
+      if (!code || typeof code !== 'string') {
+        return res.status(400).json({ message: "Verification code is required" });
+      }
+
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      // Check if code matches and hasn't expired
+      if (user.phoneVerificationCode !== code) {
+        return res.status(400).json({ message: "Invalid verification code" });
+      }
+
+      if (!user.phoneVerificationExpiry || new Date() > user.phoneVerificationExpiry) {
+        return res.status(400).json({ message: "Verification code has expired" });
+      }
+
+      // Mark phone as verified
+      await storage.verifyUserPhone(userId);
+
+      res.json({ message: "Phone verified successfully" });
+    } catch (error) {
+      console.error("Error verifying phone:", error);
+      res.status(500).json({ message: "Failed to verify phone" });
+    }
+  });
+
   // Village routes
   app.get('/api/villages', async (req, res) => {
     try {
@@ -67,7 +135,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Emergency pin routes
+  // Emergency pin operations
   app.get('/api/emergency-pins', async (req, res) => {
     try {
       const pins = await storage.getEmergencyPins();
@@ -81,8 +149,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/emergency-pins', isAuthenticated, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
-      const pinData = insertEmergencyPinSchema.parse({ ...req.body, userId });
-      const pin = await storage.createEmergencyPin(pinData);
+      
+      // Check if user's phone is verified - anti-fraud measure
+      const user = await storage.getUser(userId);
+      if (!user?.phoneVerified) {
+        return res.status(400).json({ message: "Phone verification required before posting emergency alerts" });
+      }
+
+      const validatedData = insertEmergencyPinSchema.parse({
+        ...req.body,
+        userId,
+        status: "active"
+      });
+      
+      const pin = await storage.createEmergencyPin(validatedData);
       
       // Broadcast to all connected clients
       broadcast({
