@@ -11,6 +11,7 @@ import {
   smsAlerts,
   type User,
   type UpsertUser,
+  type InsertUser,
   type Village,
   type InsertVillage,
   type EmergencyPin,
@@ -218,6 +219,8 @@ export class DatabaseStorage implements IStorage {
         description: emergencyPins.description,
         location: emergencyPins.location,
         status: emergencyPins.status,
+        verified: emergencyPins.verified,
+        reportedCount: emergencyPins.reportedCount,
         createdAt: emergencyPins.createdAt,
         updatedAt: emergencyPins.updatedAt,
       })

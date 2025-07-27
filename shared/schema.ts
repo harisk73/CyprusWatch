@@ -60,7 +60,6 @@ export const users = pgTable("users", {
     quietHoursTo: "07:00",
   }),
 
-  shareEmergencyReadiness: boolean("share_emergency_readiness").default(false), // Privacy setting
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -326,6 +325,12 @@ export const smsAlertsRelations = relations(smsAlerts, ({ one }) => ({
 }));
 
 // Insert schemas
+export const insertUserSchema = createInsertSchema(users).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 export const upsertUserSchema = createInsertSchema(users).omit({
   createdAt: true,
   updatedAt: true,
@@ -391,6 +396,7 @@ export const insertSmsAlertSchema = createInsertSchema(smsAlerts).omit({
 });
 
 // Types
+export type InsertUser = z.infer<typeof insertUserSchema>;
 export type UpsertUser = z.infer<typeof upsertUserSchema>;
 export type User = typeof users.$inferSelect;
 export type Village = typeof villages.$inferSelect;
