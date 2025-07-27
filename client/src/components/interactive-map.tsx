@@ -2,7 +2,13 @@ import { useEffect, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { MapPin } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -22,7 +28,10 @@ interface InteractiveMapProps {
   showReportButton?: boolean;
 }
 
-export default function InteractiveMap({ isReadOnly = false, showReportButton = true }: InteractiveMapProps) {
+export default function InteractiveMap({
+  isReadOnly = false,
+  showReportButton = true,
+}: InteractiveMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<any>(null);
   const [selectedPinType, setSelectedPinType] = useState("fire");
@@ -75,14 +84,14 @@ export default function InteractiveMap({ isReadOnly = false, showReportButton = 
     const loadLeaflet = async () => {
       if (!window.L) {
         // Load CSS
-        const link = document.createElement('link');
-        link.rel = 'stylesheet';
-        link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+        const link = document.createElement("link");
+        link.rel = "stylesheet";
+        link.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
         document.head.appendChild(link);
 
         // Load JS
-        const script = document.createElement('script');
-        script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+        const script = document.createElement("script");
+        script.src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
         document.head.appendChild(script);
 
         await new Promise((resolve) => {
@@ -91,40 +100,40 @@ export default function InteractiveMap({ isReadOnly = false, showReportButton = 
       }
 
       // Initialize map centered on Cyprus - zoomed out to show whole island
-      const map = window.L.map(mapRef.current).setView([35.1264, 33.4299], 8);
-      
-      window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors'
+      const map = window.L.map(mapRef.current).setView([35.1264, 33.4299], 9);
+
+      window.L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: "© OpenStreetMap contributors",
       }).addTo(map);
 
       // Add interactive cursor styles for map
-      map.getContainer().style.cursor = 'pointer';
-      
+      map.getContainer().style.cursor = "pointer";
+
       // Change cursor on hover
-      map.on('mouseover', () => {
-        map.getContainer().style.cursor = 'pointer';
+      map.on("mouseover", () => {
+        map.getContainer().style.cursor = "pointer";
       });
-      
-      map.on('mouseout', () => {
-        map.getContainer().style.cursor = 'pointer';
+
+      map.on("mouseout", () => {
+        map.getContainer().style.cursor = "pointer";
       });
 
       // Map click handler for adding new pins or selecting location
       if (!isReadOnly) {
-        map.on('click', (e: any) => {
+        map.on("click", (e: any) => {
           const { lat, lng } = e.latlng;
-          
+
           // Emit custom event for emergency reporting page to listen to
-          const mapClickEvent = new CustomEvent('mapClick', {
-            detail: { lat, lng }
+          const mapClickEvent = new CustomEvent("mapClick", {
+            detail: { lat, lng },
           });
           window.dispatchEvent(mapClickEvent);
-          
+
           // Only create pins on home page (not on emergency reporting page)
-          if (window.location.pathname === '/emergency-report') {
+          if (window.location.pathname === "/emergency-report") {
             return; // Just emit the event, don't create pin
           }
-          
+
           if (createPinMutation.isPending) {
             toast({
               title: "Please wait",
@@ -162,30 +171,33 @@ export default function InteractiveMap({ isReadOnly = false, showReportButton = 
     });
 
     // Show only active emergency pins for emergency report page
-    const pinsToShow = emergencyPins.filter(pin => pin.status === 'active');
-      
+    const pinsToShow = emergencyPins.filter((pin) => pin.status === "active");
+
     pinsToShow.forEach((pin) => {
       const iconColor = getIconColor(pin.type);
-      
+
       const customIcon = window.L.divIcon({
-        className: 'custom-pin',
+        className: "custom-pin",
         html: `<div style="background: ${iconColor}; width: 20px; height: 20px; border-radius: 50%; border: 3px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);"></div>`,
         iconSize: [20, 20],
-        iconAnchor: [10, 10]
+        iconAnchor: [10, 10],
       });
 
-      const marker = window.L.marker([parseFloat(pin.latitude), parseFloat(pin.longitude)], {
-        icon: customIcon,
-        isEmergencyPin: true
-      }).addTo(mapInstanceRef.current);
+      const marker = window.L.marker(
+        [parseFloat(pin.latitude), parseFloat(pin.longitude)],
+        {
+          icon: customIcon,
+          isEmergencyPin: true,
+        },
+      ).addTo(mapInstanceRef.current);
 
       const timeAgo = getTimeAgo(pin.createdAt || new Date());
-      
+
       marker.bindPopup(`
         <div style="min-width: 200px;">
           <strong>${getPinTypeLabel(pin.type)}</strong><br>
-          <span style="color: #666;">${pin.location || 'Location not specified'}</span><br>
-          ${pin.description ? `<p style="margin: 8px 0; color: #333;">${pin.description}</p>` : ''}
+          <span style="color: #666;">${pin.location || "Location not specified"}</span><br>
+          ${pin.description ? `<p style="margin: 8px 0; color: #333;">${pin.description}</p>` : ""}
           <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #eee; font-size: 12px; color: #888;">
             <div>Reported: ${timeAgo}</div>
             <div>Status: <span style="color: #D32F2F; font-weight: bold;">${pin.status.toUpperCase()}</span></div>
@@ -197,27 +209,43 @@ export default function InteractiveMap({ isReadOnly = false, showReportButton = 
 
   const getIconColor = (type: string) => {
     switch (type) {
-      case 'fire': return '#D32F2F';
-      case 'smoke': return '#F57C00';
-      case 'flood': return '#1976D2';
-      case 'accident': return '#7B1FA2';
-      case 'medical': return '#D32F2F';
-      case 'weather': return '#388E3C';
-      case 'security': return '#F57C00';
-      default: return '#757575';
+      case "fire":
+        return "#D32F2F";
+      case "smoke":
+        return "#F57C00";
+      case "flood":
+        return "#1976D2";
+      case "accident":
+        return "#7B1FA2";
+      case "medical":
+        return "#D32F2F";
+      case "weather":
+        return "#388E3C";
+      case "security":
+        return "#F57C00";
+      default:
+        return "#757575";
     }
   };
 
   const getPinTypeLabel = (type: string) => {
     switch (type) {
-      case 'fire': return '🔥 Fire';
-      case 'smoke': return '💨 Smoke';
-      case 'flood': return '🌊 Flood';
-      case 'accident': return '🚗 Accident';
-      case 'medical': return '🚑 Medical Emergency';
-      case 'weather': return '🌪️ Severe Weather';
-      case 'security': return '🚨 Security Issue';
-      default: return '⚠️ Other';
+      case "fire":
+        return "🔥 Fire";
+      case "smoke":
+        return "💨 Smoke";
+      case "flood":
+        return "🌊 Flood";
+      case "accident":
+        return "🚗 Accident";
+      case "medical":
+        return "🚑 Medical Emergency";
+      case "weather":
+        return "🌪️ Severe Weather";
+      case "security":
+        return "🚨 Security Issue";
+      default:
+        return "⚠️ Other";
     }
   };
 
@@ -225,8 +253,10 @@ export default function InteractiveMap({ isReadOnly = false, showReportButton = 
   const getTimeAgo = (date: string | Date) => {
     const now = new Date();
     const past = new Date(date);
-    const diffInMinutes = Math.floor((now.getTime() - past.getTime()) / (1000 * 60));
-    
+    const diffInMinutes = Math.floor(
+      (now.getTime() - past.getTime()) / (1000 * 60),
+    );
+
     if (diffInMinutes < 1) return "Just now";
     if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
     const diffInHours = Math.floor(diffInMinutes / 60);
@@ -245,19 +275,17 @@ export default function InteractiveMap({ isReadOnly = false, showReportButton = 
                 Cyprus Emergency Map
               </CardTitle>
               <p className="text-neutral-500">
-                {isReadOnly 
+                {isReadOnly
                   ? "View active emergency incidents across Cyprus"
-                  : "Click anywhere on the map to set location coordinates. Active emergency alerts are shown as colored pins."
-                }
+                  : "Click anywhere on the map to set location coordinates. Active emergency alerts are shown as colored pins."}
               </p>
             </div>
-
           </div>
         </CardHeader>
-        
+
         <CardContent className="p-0">
           <div className="relative z-0">
-            <div 
+            <div
               ref={mapRef}
               className="h-96 bg-neutral-100 relative z-0"
               style={{ height: "500px" }}
@@ -271,7 +299,7 @@ export default function InteractiveMap({ isReadOnly = false, showReportButton = 
                 </div>
               )}
             </div>
-            
+
             {/* Map Legend */}
             <div className="absolute top-4 right-4 bg-white rounded-lg shadow-lg p-4 border border-neutral-200">
               <h4 className="font-semibold text-neutral-600 mb-3">Legend</h4>
