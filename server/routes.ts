@@ -130,6 +130,36 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // SMS Test endpoint for debugging (development only)
+  if (process.env.NODE_ENV === 'development') {
+    app.post('/api/sms/test', isAuthenticated, async (req: any, res) => {
+      try {
+        const { phone } = req.body;
+        if (!phone) {
+          return res.status(400).json({ message: "Phone number required" });
+        }
+        
+        console.log('Testing SMS configuration...');
+        console.log('Environment variables:', {
+          TWILIO_ACCOUNT_SID: !!process.env.TWILIO_ACCOUNT_SID,
+          TWILIO_AUTH_TOKEN: !!process.env.TWILIO_AUTH_TOKEN,
+          TWILIO_PHONE_NUMBER: !!process.env.TWILIO_PHONE_NUMBER,
+          fromNumber: process.env.TWILIO_PHONE_NUMBER
+        });
+        
+        await sendSMS(phone, "Test message from Cyprus Emergency System");
+        res.json({ message: "Test SMS sent successfully" });
+      } catch (error: any) {
+        console.error("SMS test failed:", error);
+        res.status(500).json({ 
+          message: "SMS test failed", 
+          error: error.message,
+          details: error.code || 'No error code'
+        });
+      }
+    });
+  }
+
   // Phone verification routes
   app.post('/api/auth/send-verification', isAuthenticated, async (req: any, res) => {
     try {
@@ -154,12 +184,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Send SMS via Twilio in production
       try {
         await sendVerificationCode(phone, verificationCode);
-        console.log(`SMS verification code sent to ${phone}`);
-      } catch (smsError) {
+        console.log(`SMS verification code sent successfully to ${phone}`);
+      } catch (smsError: any) {
         console.error("SMS sending failed:", smsError);
-        // In development or SMS failure, log the code
-        if (process.env.NODE_ENV === 'development') {
-          console.log(`Fallback - SMS verification code for ${phone}: ${verificationCode}`);
+        
+        // In development or SMS failure, always log the code for testing
+        console.log(`Development/Fallback - SMS verification code for ${phone}: ${verificationCode}`);
+        
+        // If this is a critical SMS error (not development), we might want to return an error
+        // For now, we'll continue and let the user know there was an SMS issue
+        if (process.env.NODE_ENV === 'production') {
+          console.error(`Production SMS failure for ${phone}:`, smsError.message);
         }
       }
       

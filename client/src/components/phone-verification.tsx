@@ -37,7 +37,7 @@ export default function PhoneVerification({ userPhone, onVerificationComplete }:
         description: `A verification code has been sent to ${phone}`,
       });
     },
-    onError: (error) => {
+    onError: async (error) => {
       if (isUnauthorizedError(error)) {
         toast({
           title: t('common.unauthorized'),
@@ -49,9 +49,23 @@ export default function PhoneVerification({ userPhone, onVerificationComplete }:
         }, 500);
         return;
       }
+      
+      // Try to get the error message from the response
+      let errorMessage = "Failed to send verification code. Please try again.";
+      try {
+        if (error instanceof Response) {
+          const errorData = await error.json();
+          errorMessage = errorData.message || errorMessage;
+        } else if (error instanceof Error) {
+          errorMessage = error.message;
+        }
+      } catch (e) {
+        // Use default message if parsing fails
+      }
+      
       toast({
-        title: "Error",
-        description: "Failed to send verification code. Please try again.",
+        title: "SMS Error",
+        description: errorMessage,
         variant: "destructive",
       });
     },
@@ -71,7 +85,7 @@ export default function PhoneVerification({ userPhone, onVerificationComplete }:
       });
       onVerificationComplete();
     },
-    onError: (error) => {
+    onError: async (error) => {
       if (isUnauthorizedError(error)) {
         toast({
           title: t('common.unauthorized'),
@@ -83,9 +97,23 @@ export default function PhoneVerification({ userPhone, onVerificationComplete }:
         }, 500);
         return;
       }
+      
+      // Try to get the error message from the response
+      let errorMessage = "Invalid or expired verification code. Please try again.";
+      try {
+        if (error instanceof Response) {
+          const errorData = await error.json();
+          errorMessage = errorData.message || errorMessage;
+        } else if (error instanceof Error) {
+          errorMessage = error.message;
+        }
+      } catch (e) {
+        // Use default message if parsing fails
+      }
+      
       toast({
         title: "Verification Failed",
-        description: "Invalid or expired verification code. Please try again.",
+        description: errorMessage,
         variant: "destructive",
       });
     },
