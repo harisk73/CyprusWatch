@@ -175,7 +175,7 @@ export default function DashboardOverview() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle className="text-xl">{t("dashboard.recentActivity")}</CardTitle>
+            <CardTitle className="text-xl">{t("dashboard.recentAlerts")}</CardTitle>
           </CardHeader>
           <CardContent>
             {activeEmergencyPins.length > 0 ? (
