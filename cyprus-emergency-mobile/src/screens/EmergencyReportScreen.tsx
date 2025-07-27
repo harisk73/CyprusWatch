@@ -8,14 +8,14 @@ import {
   Alert,
   ScrollView,
 } from 'react-native';
-import * as Location from 'expo-location';
+// import * as Location from 'expo-location'; // Commented out for now
 
 interface EmergencyReportScreenProps {
   navigation: any;
 }
 
 export default function EmergencyReportScreen({ navigation }: EmergencyReportScreenProps) {
-  const [location, setLocation] = useState<Location.LocationObject | null>(null);
+  const [location, setLocation] = useState<any>(null);
   const [selectedType, setSelectedType] = useState<string>('');
 
   const emergencyTypes = [
@@ -33,14 +33,19 @@ export default function EmergencyReportScreen({ navigation }: EmergencyReportScr
 
   const getCurrentLocation = async () => {
     try {
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        Alert.alert('Permission denied', 'Location access is required for emergency reporting');
-        return;
-      }
-
-      const currentLocation = await Location.getCurrentPositionAsync({});
-      setLocation(currentLocation);
+      // Mock location for demo purposes
+      const mockLocation = {
+        coords: {
+          latitude: 34.6857,
+          longitude: 33.0299,
+          altitude: null,
+          accuracy: 10,
+          heading: null,
+          speed: null,
+        },
+        timestamp: Date.now(),
+      };
+      setLocation(mockLocation);
     } catch (error) {
       Alert.alert('Error', 'Failed to get location');
     }

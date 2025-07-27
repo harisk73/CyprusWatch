@@ -1,4 +1,4 @@
-import Constants from "expo-constants";
+// import Constants from "expo-constants"; // Commented out for now
 
 // Check if we're in development mode
 declare const __DEV__: boolean;

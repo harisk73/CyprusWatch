@@ -8,7 +8,7 @@ import {
   ScrollView,
   Alert,
 } from 'react-native';
-import * as Location from 'expo-location';
+// import * as Location from 'expo-location'; // Commented out for now
 
 interface HomeScreenProps {
   navigation: any;
