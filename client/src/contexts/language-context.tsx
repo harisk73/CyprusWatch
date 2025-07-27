@@ -81,6 +81,7 @@ const translations = {
     'dashboard.ago': 'ago',
     'dashboard.just': 'just',
     'dashboard.now': 'now',
+    'dashboard.clickToViewMap': 'Click to view on map',
     
     // Emergency types
     'emergencyType.fire': 'Fire',
@@ -289,6 +290,7 @@ const translations = {
     'dashboard.ago': 'πριν',
     'dashboard.just': 'μόλις',
     'dashboard.now': 'τώρα',
+    'dashboard.clickToViewMap': 'Κάντε κλικ για προβολή στον χάρτη',
     
     // Emergency types
     'emergencyType.fire': 'Πυρκαγιά',

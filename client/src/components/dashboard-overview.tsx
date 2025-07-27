@@ -76,6 +76,17 @@ export default function DashboardOverview() {
     return `${diffInDays}d ${t("dashboard.ago")}`;
   };
 
+  // Function to scroll to the map section
+  const scrollToMap = () => {
+    const mapSection = document.getElementById('emergency-map-section');
+    if (mapSection) {
+      mapSection.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }
+  };
+
   return (
     <section className="mb-8">
       <div className="flex justify-between items-center mb-6">
@@ -101,9 +112,10 @@ export default function DashboardOverview() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {/* Active Emergencies */}
         <Card
-          className={
-            activeEmergencyPins.length > 0 ? "border-emergency shadow-lg" : ""
-          }
+          className={`cursor-pointer transition-all duration-200 hover:shadow-lg ${
+            activeEmergencyPins.length > 0 ? "border-emergency shadow-lg hover:shadow-xl" : "hover:border-gray-300"
+          }`}
+          onClick={scrollToMap}
         >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="tracking-tight text-[18px] font-bold">
@@ -119,7 +131,7 @@ export default function DashboardOverview() {
             </div>
             <p className="text-xs text-neutral-500">
               {activeEmergencyPins.length > 0
-                ? t("dashboard.requiresAttention")
+                ? t("dashboard.requiresAttention") + " • " + t("dashboard.clickToViewMap")
                 : t("dashboard.noActiveEmergencies")}
             </p>
           </CardContent>
