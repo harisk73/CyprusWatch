@@ -47,6 +47,42 @@ const isSystemAdmin: typeof isAuthenticated = async (req: any, res, next) => {
 };
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Health check endpoints for deployment
+  app.get('/health', (req, res) => {
+    res.status(200).json({ 
+      status: 'ok', 
+      timestamp: new Date().toISOString(),
+      environment: process.env.NODE_ENV || 'development'
+    });
+  });
+
+  // Additional health check endpoints commonly used by deployment platforms
+  app.get('/api/health', (req, res) => {
+    res.status(200).json({ 
+      status: 'ok', 
+      timestamp: new Date().toISOString(),
+      environment: process.env.NODE_ENV || 'development'
+    });
+  });
+
+  app.get('/healthz', (req, res) => {
+    res.status(200).json({ status: 'ok' });
+  });
+
+  app.get('/ready', (req, res) => {
+    res.status(200).json({ status: 'ready' });
+  });
+
+  // Root health check for deployment health checks
+  app.get('/', (req, res, next) => {
+    // For deployment health checks, respond with 200 for non-browser requests
+    if (req.headers.accept && !req.headers.accept.includes('text/html')) {
+      return res.status(200).json({ status: 'ok' });
+    }
+    // For browser requests or in development, continue to serve the app
+    next();
+  });
+
   // Auth middleware
   await setupAuth(app);
 

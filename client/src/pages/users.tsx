@@ -587,6 +587,9 @@ interface CreateUserFormProps {
 }
 
 function CreateUserForm({ villages, onSave, onCancel, isLoading }: CreateUserFormProps) {
+  // Filter out any villages with empty or invalid IDs to prevent SelectItem errors
+  const validVillages = villages.filter(village => village.id && village.id.trim() !== '');
+  
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -668,7 +671,7 @@ function CreateUserForm({ villages, onSave, onCancel, isLoading }: CreateUserFor
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="none">No Village</SelectItem>
-            {villages.map((village) => (
+            {validVillages.map((village) => (
               <SelectItem key={village.id} value={village.id}>
                 {village.name} ({village.district})
               </SelectItem>
@@ -789,6 +792,9 @@ interface EditUserFormProps {
 }
 
 function EditUserForm({ user, villages, onSave, onCancel, isLoading }: EditUserFormProps) {
+  // Filter out any villages with empty or invalid IDs to prevent SelectItem errors
+  const validVillages = villages.filter(village => village.id && village.id.trim() !== '');
+  
   const [formData, setFormData] = useState({
     firstName: user.firstName || "",
     lastName: user.lastName || "",
@@ -865,7 +871,7 @@ function EditUserForm({ user, villages, onSave, onCancel, isLoading }: EditUserF
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="none">No Village</SelectItem>
-            {villages.map((village) => (
+            {validVillages.map((village) => (
               <SelectItem key={village.id} value={village.id}>
                 {village.name} ({village.district})
               </SelectItem>
