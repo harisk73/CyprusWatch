@@ -187,6 +187,23 @@ export class DatabaseStorage implements IStorage {
     return updatedPin;
   }
 
+  async updateEmergencyPin(id: string, updateData: Partial<InsertEmergencyPin>): Promise<EmergencyPin | undefined> {
+    const [updatedPin] = await db
+      .update(emergencyPins)
+      .set({ ...updateData, updatedAt: new Date() })
+      .where(eq(emergencyPins.id, id))
+      .returning();
+    return updatedPin;
+  }
+
+  async deleteEmergencyPin(id: string): Promise<boolean> {
+    const result = await db
+      .delete(emergencyPins)
+      .where(eq(emergencyPins.id, id))
+      .returning();
+    return result.length > 0;
+  }
+
   // Alert operations
   async getActiveAlerts(): Promise<Alert[]> {
     return await db

@@ -101,7 +101,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.patch('/api/emergency-pins/:id/status', isAuthenticated, async (req, res) => {
+  app.patch('/api/emergency-pins/:id/status', isAdmin, async (req, res) => {
     try {
       const { id } = req.params;
       const { status } = req.body;
@@ -119,6 +119,47 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error updating emergency pin:", error);
       res.status(500).json({ message: "Failed to update emergency pin" });
+    }
+  });
+
+  app.put('/api/emergency-pins/:id', isAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const validatedData = insertEmergencyPinSchema.partial().parse(req.body);
+      const pin = await storage.updateEmergencyPin(id, validatedData);
+      
+      if (pin) {
+        broadcast({
+          type: 'emergency_pin_updated',
+          data: pin
+        });
+        res.json(pin);
+      } else {
+        res.status(404).json({ message: "Emergency pin not found" });
+      }
+    } catch (error) {
+      console.error("Error updating emergency pin:", error);
+      res.status(500).json({ message: "Failed to update emergency pin" });
+    }
+  });
+
+  app.delete('/api/emergency-pins/:id', isAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const deleted = await storage.deleteEmergencyPin(id);
+      
+      if (deleted) {
+        broadcast({
+          type: 'emergency_pin_deleted',
+          data: { id }
+        });
+        res.json({ message: "Emergency pin deleted successfully" });
+      } else {
+        res.status(404).json({ message: "Emergency pin not found" });
+      }
+    } catch (error) {
+      console.error("Error deleting emergency pin:", error);
+      res.status(500).json({ message: "Failed to delete emergency pin" });
     }
   });
 
