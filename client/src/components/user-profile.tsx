@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Save } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
+import { useLanguage } from "@/contexts/language-context";
 import { apiRequest } from "@/lib/queryClient";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import type { Village, User } from "@shared/schema";
@@ -17,6 +18,7 @@ import type { Village, User } from "@shared/schema";
 export default function UserProfile() {
   const { user } = useAuth() as { user: User | undefined };
   const { toast } = useToast();
+  const { t } = useLanguage();
   const queryClient = useQueryClient();
 
   const [profileForm, setProfileForm] = useState({
@@ -55,14 +57,14 @@ export default function UserProfile() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
       toast({
-        title: "Profile Updated",
-        description: "Your profile has been updated successfully.",
+        title: t('profile.updated'),
+        description: t('profile.updatedDesc'),
       });
     },
     onError: (error) => {
       if (isUnauthorizedError(error)) {
         toast({
-          title: "Unauthorized",
+          title: t('common.unauthorized'),
           description: "You are logged out. Logging in again...",
           variant: "destructive",
         });
@@ -72,8 +74,8 @@ export default function UserProfile() {
         return;
       }
       toast({
-        title: "Error",
-        description: "Failed to update profile. Please try again.",
+        title: t('common.error'),
+        description: t('profile.updateError'),
         variant: "destructive",
       });
     },
@@ -103,7 +105,7 @@ export default function UserProfile() {
         <div className="lg:col-span-2">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0">
-              <CardTitle className="text-xl font-bold text-neutral-600">Profile Settings</CardTitle>
+              <CardTitle className="text-xl font-bold text-neutral-600">{t('profile.title')}</CardTitle>
               <Button
                 form="profile-form"
                 type="submit"
@@ -111,7 +113,7 @@ export default function UserProfile() {
                 className="bg-primary hover:bg-primary/90"
               >
                 <Save className="w-4 h-4 mr-2" />
-                {updateProfileMutation.isPending ? "Saving..." : "Save Changes"}
+                {updateProfileMutation.isPending ? t('profile.saving') : t('profile.saveChanges')}
               </Button>
             </CardHeader>
 
@@ -120,10 +122,10 @@ export default function UserProfile() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* Personal Information */}
                   <div>
-                    <h3 className="font-semibold text-neutral-600 mb-4">Personal Information</h3>
+                    <h3 className="font-semibold text-neutral-600 mb-4">{t('profile.personalInfo')}</h3>
                     <div className="space-y-4">
                       <div>
-                        <Label htmlFor="firstName">First Name</Label>
+                        <Label htmlFor="firstName">{t('profile.firstName')}</Label>
                         <Input
                           id="firstName"
                           value={profileForm.firstName}
@@ -131,7 +133,7 @@ export default function UserProfile() {
                         />
                       </div>
                       <div>
-                        <Label htmlFor="lastName">Last Name</Label>
+                        <Label htmlFor="lastName">{t('profile.lastName')}</Label>
                         <Input
                           id="lastName"
                           value={profileForm.lastName}
@@ -139,7 +141,7 @@ export default function UserProfile() {
                         />
                       </div>
                       <div>
-                        <Label htmlFor="email">Email</Label>
+                        <Label htmlFor="email">{t('profile.email')}</Label>
                         <Input
                           id="email"
                           type="email"
@@ -148,7 +150,7 @@ export default function UserProfile() {
                         />
                       </div>
                       <div>
-                        <Label htmlFor="phone">Phone Number</Label>
+                        <Label htmlFor="phone">{t('profile.phone')}</Label>
                         <Input
                           id="phone"
                           type="tel"
@@ -161,16 +163,16 @@ export default function UserProfile() {
 
                   {/* Location Settings */}
                   <div>
-                    <h3 className="font-semibold text-neutral-600 mb-4">Location Settings</h3>
+                    <h3 className="font-semibold text-neutral-600 mb-4">{t('profile.locationSettings')}</h3>
                     <div className="space-y-4">
                       <div>
-                        <Label htmlFor="village">Your Village</Label>
+                        <Label htmlFor="village">{t('profile.yourVillage')}</Label>
                         <Select
                           value={profileForm.villageId}
                           onValueChange={(value) => setProfileForm(prev => ({ ...prev, villageId: value }))}
                         >
                           <SelectTrigger>
-                            <SelectValue placeholder="Select your village..." />
+                            <SelectValue placeholder={t('profile.selectVillage')} />
                           </SelectTrigger>
                           <SelectContent>
                             {villages?.map((village) => (
@@ -182,7 +184,7 @@ export default function UserProfile() {
                         </Select>
                       </div>
                       <div>
-                        <Label htmlFor="district">District</Label>
+                        <Label htmlFor="district">{t('profile.district')}</Label>
                         <Input
                           id="district"
                           value={selectedVillage?.district || ""}
@@ -191,12 +193,12 @@ export default function UserProfile() {
                         />
                       </div>
                       <div>
-                        <Label htmlFor="address">Address (Optional)</Label>
+                        <Label htmlFor="address">{t('profile.address')}</Label>
                         <Textarea
                           id="address"
                           value={profileForm.address}
                           onChange={(e) => setProfileForm(prev => ({ ...prev, address: e.target.value }))}
-                          placeholder="Enter your address..."
+                          placeholder={t('profile.addressPlaceholder')}
                           rows={3}
                           className="resize-none"
                         />
@@ -207,10 +209,10 @@ export default function UserProfile() {
 
                 {/* Emergency Contacts */}
                 <div className="mt-8">
-                  <h3 className="font-semibold text-neutral-600 mb-4">Emergency Contacts</h3>
+                  <h3 className="font-semibold text-neutral-600 mb-4">{t('profile.emergencyContacts')}</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="emergencyContactName">Primary Contact Name</Label>
+                      <Label htmlFor="emergencyContactName">{t('profile.primaryContactName')}</Label>
                       <Input
                         id="emergencyContactName"
                         value={profileForm.emergencyContactName}
@@ -218,7 +220,7 @@ export default function UserProfile() {
                       />
                     </div>
                     <div>
-                      <Label htmlFor="emergencyContactPhone">Primary Contact Phone</Label>
+                      <Label htmlFor="emergencyContactPhone">{t('profile.primaryContactPhone')}</Label>
                       <Input
                         id="emergencyContactPhone"
                         type="tel"
@@ -227,26 +229,26 @@ export default function UserProfile() {
                       />
                     </div>
                     <div>
-                      <Label htmlFor="relationship">Relationship</Label>
+                      <Label htmlFor="relationship">{t('profile.relationship')}</Label>
                       <Select
                         value={profileForm.emergencyContactRelationship}
                         onValueChange={(value) => setProfileForm(prev => ({ ...prev, emergencyContactRelationship: value }))}
                       >
                         <SelectTrigger>
-                          <SelectValue placeholder="Select relationship..." />
+                          <SelectValue placeholder={t('profile.selectRelationship')} />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="spouse">Spouse</SelectItem>
-                          <SelectItem value="parent">Parent</SelectItem>
-                          <SelectItem value="sibling">Sibling</SelectItem>
-                          <SelectItem value="child">Child</SelectItem>
-                          <SelectItem value="friend">Friend</SelectItem>
-                          <SelectItem value="other">Other</SelectItem>
+                          <SelectItem value="spouse">{t('profile.relationshipSpouse')}</SelectItem>
+                          <SelectItem value="parent">{t('profile.relationshipParent')}</SelectItem>
+                          <SelectItem value="sibling">{t('profile.relationshipSibling')}</SelectItem>
+                          <SelectItem value="child">{t('profile.relationshipChild')}</SelectItem>
+                          <SelectItem value="friend">{t('profile.relationshipFriend')}</SelectItem>
+                          <SelectItem value="other">{t('profile.relationshipOther')}</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
                     <div>
-                      <Label htmlFor="emergencyContactSecondary">Secondary Contact Phone</Label>
+                      <Label htmlFor="emergencyContactSecondary">{t('profile.secondaryContactPhone')}</Label>
                       <Input
                         id="emergencyContactSecondary"
                         type="tel"
@@ -265,17 +267,17 @@ export default function UserProfile() {
         {/* Notification Preferences */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-xl font-bold text-neutral-600">Notification Preferences</CardTitle>
+            <CardTitle className="text-xl font-bold text-neutral-600">{t('profile.notificationPreferences')}</CardTitle>
           </CardHeader>
           
           <CardContent>
             <div className="space-y-6">
               <div>
-                <h4 className="font-medium text-neutral-600 mb-3">Alert Types</h4>
+                <h4 className="font-medium text-neutral-600 mb-3">{t('profile.alertTypes')}</h4>
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <Label htmlFor="emergency-alerts" className="text-sm text-neutral-600">
-                      Emergency Alerts
+                      {t('profile.emergencyAlerts')}
                     </Label>
                     <Checkbox
                       id="emergency-alerts"
@@ -286,7 +288,7 @@ export default function UserProfile() {
                   </div>
                   <div className="flex items-center justify-between">
                     <Label htmlFor="weather-alerts" className="text-sm text-neutral-600">
-                      Weather Warnings
+                      {t('profile.weatherWarnings')}
                     </Label>
                     <Checkbox
                       id="weather-alerts"
@@ -296,7 +298,7 @@ export default function UserProfile() {
                   </div>
                   <div className="flex items-center justify-between">
                     <Label htmlFor="road-alerts" className="text-sm text-neutral-600">
-                      Road Closures
+                      {t('profile.roadClosures')}
                     </Label>
                     <Checkbox
                       id="road-alerts"
@@ -306,7 +308,7 @@ export default function UserProfile() {
                   </div>
                   <div className="flex items-center justify-between">
                     <Label htmlFor="community-alerts" className="text-sm text-neutral-600">
-                      Community Updates
+                      {t('profile.communityUpdates')}
                     </Label>
                     <Checkbox
                       id="community-alerts"
@@ -318,11 +320,11 @@ export default function UserProfile() {
               </div>
 
               <div>
-                <h4 className="font-medium text-neutral-600 mb-3">Notification Methods</h4>
+                <h4 className="font-medium text-neutral-600 mb-3">{t('profile.notificationMethods')}</h4>
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <Label htmlFor="browser-notifications" className="text-sm text-neutral-600">
-                      Browser Notifications
+                      {t('profile.browserNotifications')}
                     </Label>
                     <Checkbox
                       id="browser-notifications"
@@ -332,7 +334,7 @@ export default function UserProfile() {
                   </div>
                   <div className="flex items-center justify-between">
                     <Label htmlFor="sms-notifications" className="text-sm text-neutral-600">
-                      SMS Notifications
+                      {t('profile.smsNotifications')}
                     </Label>
                     <Checkbox
                       id="sms-notifications"
@@ -342,7 +344,7 @@ export default function UserProfile() {
                   </div>
                   <div className="flex items-center justify-between">
                     <Label htmlFor="email-notifications" className="text-sm text-neutral-600">
-                      Email Notifications
+                      {t('profile.emailNotifications')}
                     </Label>
                     <Checkbox
                       id="email-notifications"
@@ -354,10 +356,10 @@ export default function UserProfile() {
               </div>
 
               <div>
-                <h4 className="font-medium text-neutral-600 mb-3">Quiet Hours</h4>
+                <h4 className="font-medium text-neutral-600 mb-3">{t('profile.quietHours')}</h4>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <Label htmlFor="quiet-from" className="text-xs text-neutral-500">From</Label>
+                    <Label htmlFor="quiet-from" className="text-xs text-neutral-500">{t('profile.from')}</Label>
                     <Input
                       id="quiet-from"
                       type="time"
@@ -367,7 +369,7 @@ export default function UserProfile() {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="quiet-to" className="text-xs text-neutral-500">To</Label>
+                    <Label htmlFor="quiet-to" className="text-xs text-neutral-500">{t('profile.to')}</Label>
                     <Input
                       id="quiet-to"
                       type="time"

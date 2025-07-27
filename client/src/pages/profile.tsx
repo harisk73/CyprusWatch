@@ -1,17 +1,19 @@
 import { useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/contexts/language-context";
 import NavigationHeader from "@/components/navigation-header";
 import UserProfile from "@/components/user-profile";
 
 export default function Profile() {
   const { toast } = useToast();
+  const { t } = useLanguage();
   const { isAuthenticated, isLoading } = useAuth();
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
       toast({
-        title: "Unauthorized",
+        title: t('common.unauthorized'),
         description: "You are logged out. Logging in again...",
         variant: "destructive",
       });
@@ -27,7 +29,7 @@ export default function Profile() {
       <div className="min-h-screen bg-neutral-100 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-neutral-500">Loading...</p>
+          <p className="text-neutral-500">{t('profile.loading')}</p>
         </div>
       </div>
     );
