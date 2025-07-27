@@ -26,7 +26,14 @@ export default {
       favicon: "./assets/favicon.png",
       bundler: "metro"
     },
-    plugins: [],
+    plugins: [
+      [
+        "expo-location",
+        {
+          locationAlwaysAndWhenInUsePermission: "Allow Cyprus Emergency to use your location for emergency reporting."
+        }
+      ]
+    ],
     platforms: ["ios", "android", "web"]
   }
 };
