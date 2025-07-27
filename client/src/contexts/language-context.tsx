@@ -79,6 +79,16 @@ const translations = {
     'dashboard.just': 'just',
     'dashboard.now': 'now',
     
+    // Emergency types
+    'emergencyType.fire': 'Fire',
+    'emergencyType.smoke': 'Smoke',
+    'emergencyType.flood': 'Flood',
+    'emergencyType.accident': 'Accident',
+    'emergencyType.medical': 'Medical',
+    'emergencyType.weather': 'Weather',
+    'emergencyType.security': 'Security',
+    'emergencyType.other': 'Other',
+    
     // Emergency Services
     'emergencyServices.title': 'Emergency Services',
     'emergencyServices.subtitle': 'Direct contact with official Cyprus emergency services. Tap to call immediately.',
@@ -227,6 +237,16 @@ const translations = {
     'dashboard.ago': 'πριν',
     'dashboard.just': 'μόλις',
     'dashboard.now': 'τώρα',
+    
+    // Emergency types
+    'emergencyType.fire': 'Πυρκαγιά',
+    'emergencyType.smoke': 'Καπνός',
+    'emergencyType.flood': 'Πλημμύρα',
+    'emergencyType.accident': 'Ατύχημα',
+    'emergencyType.medical': 'Ιατρική',
+    'emergencyType.weather': 'Καιρός',
+    'emergencyType.security': 'Ασφάλεια',
+    'emergencyType.other': 'Άλλο',
     
     // Emergency Services
     'emergencyServices.title': 'Υπηρεσίες Έκτακτης Ανάγκης',

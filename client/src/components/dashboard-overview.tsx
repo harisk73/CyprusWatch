@@ -14,7 +14,7 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/contexts/language-context";
 import { Link } from "wouter";
-import type { Alert, Village, User } from "@shared/schema";
+import type { Alert, Village, User, EmergencyPin } from "@shared/schema";
 
 export default function DashboardOverview() {
   const { user } = useAuth() as { user: User | undefined };
@@ -28,6 +28,10 @@ export default function DashboardOverview() {
     queryKey: ["/api/villages"],
   });
 
+  const { data: emergencyPins } = useQuery<EmergencyPin[]>({
+    queryKey: ["/api/emergency-pins"],
+  });
+
   const activeAlerts =
     alerts?.filter((alert) => alert.status === "active") || [];
   const emergencyAlerts = activeAlerts.filter(
@@ -36,6 +40,29 @@ export default function DashboardOverview() {
   const warningAlerts = activeAlerts.filter(
     (alert) => alert.type === "warning",
   );
+
+  // Get active emergency pins
+  const activeEmergencyPins = 
+    emergencyPins?.filter((pin) => pin.status === "active") || [];
+
+  // Helper function to get emergency type display name
+  const getEmergencyTypeDisplay = (type: string) => {
+    return t(`emergencyType.${type}`) || type;
+  };
+
+  // Helper function to get time ago display
+  const getTimeAgo = (date: string | Date) => {
+    const now = new Date();
+    const past = new Date(date);
+    const diffInMinutes = Math.floor((now.getTime() - past.getTime()) / (1000 * 60));
+    
+    if (diffInMinutes < 1) return t("dashboard.just") + " " + t("dashboard.now");
+    if (diffInMinutes < 60) return `${diffInMinutes}m ${t("dashboard.ago")}`;
+    const diffInHours = Math.floor(diffInMinutes / 60);
+    if (diffInHours < 24) return `${diffInHours}h ${t("dashboard.ago")}`;
+    const diffInDays = Math.floor(diffInHours / 24);
+    return `${diffInDays}d ${t("dashboard.ago")}`;
+  };
 
   return (
     <section className="mb-8">
@@ -63,7 +90,7 @@ export default function DashboardOverview() {
         {/* Active Emergencies */}
         <Card
           className={
-            emergencyAlerts.length > 0 ? "border-emergency shadow-lg" : ""
+            activeEmergencyPins.length > 0 ? "border-emergency shadow-lg" : ""
           }
         >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -71,15 +98,15 @@ export default function DashboardOverview() {
               {t("dashboard.activeEmergencies")}
             </CardTitle>
             <AlertTriangle
-              className={`h-4 w-4 ${emergencyAlerts.length > 0 ? "text-emergency" : "text-neutral-400"}`}
+              className={`h-4 w-4 ${activeEmergencyPins.length > 0 ? "text-emergency" : "text-neutral-400"}`}
             />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-emergency">
-              {emergencyAlerts.length}
+              {activeEmergencyPins.length}
             </div>
             <p className="text-xs text-neutral-500">
-              {emergencyAlerts.length > 0
+              {activeEmergencyPins.length > 0
                 ? t("dashboard.requiresAttention")
                 : t("dashboard.noActiveEmergencies")}
             </p>
@@ -151,41 +178,54 @@ export default function DashboardOverview() {
             <CardTitle className="text-xl">{t("dashboard.recentActivity")}</CardTitle>
           </CardHeader>
           <CardContent>
-            {activeAlerts.length > 0 ? (
+            {activeEmergencyPins.length > 0 ? (
               <div className="space-y-3">
-                {activeAlerts.slice(0, 3).map((alert) => (
+                {activeEmergencyPins
+                  .sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime())
+                  .slice(0, 3)
+                  .map((pin) => (
                   <div
-                    key={alert.id}
+                    key={pin.id}
                     className="flex items-center justify-between p-3 bg-neutral-50 rounded-lg"
                   >
                     <div className="flex items-center space-x-3">
                       <div
-                        className={`w-2 h-2 rounded-full ${
-                          alert.type === "emergency"
+                        className={`w-3 h-3 rounded-full ${
+                          pin.type === "fire" || pin.type === "medical"
                             ? "bg-emergency"
-                            : alert.type === "warning"
+                            : pin.type === "accident" || pin.type === "weather"
                               ? "bg-warning"
                               : "bg-info"
                         }`}
                       ></div>
-                      <div>
-                        <p className="font-medium text-sm">{alert.title}</p>
-                        <p className="text-xs text-neutral-500">
-                          {alert.targetVillages?.length || 0} {(alert.targetVillages?.length || 0) === 1 ? t("dashboard.village") : t("dashboard.villages")}
-                        </p>
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-2">
+                          <p className="font-medium text-sm">{getEmergencyTypeDisplay(pin.type)}</p>
+                          <span className="text-xs text-neutral-400">•</span>
+                          <p className="text-xs text-neutral-500">{getTimeAgo(pin.createdAt || new Date())}</p>
+                        </div>
+                        <div className="flex items-center space-x-1 mt-1">
+                          <MapPin className="h-3 w-3 text-neutral-400" />
+                          <p className="text-xs text-neutral-500 truncate">
+                            {pin.location || `${Number(pin.latitude).toFixed(4)}, ${Number(pin.longitude).toFixed(4)}`}
+                          </p>
+                        </div>
+                        {pin.description && (
+                          <p className="text-xs text-neutral-600 mt-1 truncate">{pin.description}</p>
+                        )}
                       </div>
                     </div>
                     <Badge
                       variant="secondary"
                       className={
-                        alert.type === "emergency"
-                          ? "bg-emergency/20 text-emergency"
-                          : alert.type === "warning"
-                            ? "bg-warning/20 text-warning"
-                            : "bg-info/20 text-info"
+                        pin.type === "fire" || pin.type === "medical"
+                          ? "bg-emergency/20 text-emergency text-xs"
+                          : pin.type === "accident" || pin.type === "weather"
+                            ? "bg-warning/20 text-warning text-xs"
+                            : "bg-info/20 text-info text-xs"
                       }
                     >
-                      {alert.type}
+                      {pin.status}
                     </Badge>
                   </div>
                 ))}
@@ -298,14 +338,34 @@ export default function DashboardOverview() {
             <CardTitle className="text-lg">{t("dashboard.recentAlerts")}</CardTitle>
           </CardHeader>
           <CardContent>
-            {activeAlerts.length > 0 ? (
+            {activeEmergencyPins.length > 0 ? (
               <div className="space-y-2">
-                {activeAlerts.slice(0, 2).map((alert) => (
-                  <div key={alert.id} className="p-2 bg-neutral-50 rounded">
-                    <p className="text-sm font-medium">{alert.title}</p>
+                {activeEmergencyPins
+                  .sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime())
+                  .slice(0, 2)
+                  .map((pin) => (
+                  <div key={pin.id} className="p-2 bg-neutral-50 rounded">
+                    <div className="flex items-center space-x-2 mb-1">
+                      <div
+                        className={`w-2 h-2 rounded-full ${
+                          pin.type === "fire" || pin.type === "medical"
+                            ? "bg-emergency"
+                            : pin.type === "accident" || pin.type === "weather"
+                              ? "bg-warning"
+                              : "bg-info"
+                        }`}
+                      ></div>
+                      <p className="text-sm font-medium">{getEmergencyTypeDisplay(pin.type)}</p>
+                    </div>
                     <p className="text-xs text-neutral-500">
-                      {t("dashboard.alertLevel")}: {alert.type}
+                      {t("dashboard.alertLevel")}: {pin.status}
                     </p>
+                    <div className="flex items-center space-x-1 mt-1">
+                      <MapPin className="h-3 w-3 text-neutral-400" />
+                      <p className="text-xs text-neutral-500 truncate">
+                        {pin.location || `${Number(pin.latitude).toFixed(3)}, ${Number(pin.longitude).toFixed(3)}`}
+                      </p>
+                    </div>
                   </div>
                 ))}
                 <Button variant="outline" size="sm" className="w-full mt-2">
