@@ -64,6 +64,11 @@ export interface IStorage {
 
   // Admin operations
   getUsersByVillages(villageIds: string[]): Promise<User[]>;
+  
+  // System admin operations
+  getAllUsers(): Promise<User[]>;
+  updateUser(id: string, updates: Partial<User>): Promise<User | undefined>;
+  deleteUser(id: string): Promise<void>;
 
   // Emergency services operations
   getEmergencyServices(): Promise<EmergencyService[]>;
@@ -99,15 +104,25 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
 
+  async getAllUsers(): Promise<User[]> {
+    return await db.select().from(users).orderBy(desc(users.createdAt));
+  }
+
+  async updateUser(id: string, updates: Partial<User>): Promise<User | undefined> {
+    const [user] = await db
+      .update(users)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(users.id, id))
+      .returning();
+    return user;
+  }
+
+  async deleteUser(id: string): Promise<void> {
+    await db.delete(users).where(eq(users.id, id));
+  }
+
   async getUsersByVillages(villageIds: string[]): Promise<User[]> {
-    if (villageIds.length === 0) {
-      return await db.select().from(users);
-    }
-    return await db.select().from(users).where(
-      villageIds.length === 1 
-        ? eq(users.villageId, villageIds[0])
-        : sql`${users.villageId} = ANY(${villageIds})`
-    );
+    return await db.select().from(users).where(inArray(users.villageId, villageIds));
   }
 
   async upsertUser(userData: UpsertUser): Promise<User> {
@@ -299,7 +314,7 @@ export class DatabaseStorage implements IStorage {
       );
   }
 
-  // Admin operations (moved implementation to above)
+
 
   // Emergency services operations
   async getEmergencyServices(): Promise<EmergencyService[]> {

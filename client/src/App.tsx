@@ -12,6 +12,7 @@ import EmergencyReport from "@/pages/emergency-report";
 import EmergencyServices from "@/pages/emergency-services";
 import EvacuationPlanning from "@/pages/evacuation-planning";
 import SmsAlerts from "@/pages/sms-alerts";
+import Users from "@/pages/users";
 
 function Router() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -28,6 +29,7 @@ function Router() {
           <Route path="/emergency-services" component={EmergencyServices} />
           <Route path="/evacuation-planning" component={EvacuationPlanning} />
           <Route path="/sms-alerts" component={SmsAlerts} />
+          <Route path="/users" component={Users} />
         </>
       )}
       <Route component={NotFound} />

@@ -45,6 +45,7 @@ export const users = pgTable("users", {
   emergencyContactRelationship: varchar("emergency_contact_relationship"),
   emergencyContactSecondary: varchar("emergency_contact_secondary"),
   isVillageAdmin: boolean("is_village_admin").default(false),
+  isSystemAdmin: boolean("is_system_admin").default(false),
   notificationPreferences: jsonb("notification_preferences").default({
     emergency: true,
     weather: true,

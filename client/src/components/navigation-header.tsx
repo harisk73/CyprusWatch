@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
-import { Bell, User, Settings, LogOut, Home, MapPin, AlertTriangle } from "lucide-react";
+import { Bell, User, Users, Settings, LogOut, Home, MapPin, AlertTriangle } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/contexts/language-context";
 import { LanguageSwitcher } from "@/components/language-switcher";
@@ -51,6 +51,19 @@ export default function NavigationHeader() {
                   <span>{t('nav.profile')}</span>
                 </Button>
               </Link>
+
+              {user?.isSystemAdmin && (
+                <Link href="/users">
+                  <Button 
+                    variant={location === "/users" ? "default" : "ghost"} 
+                    size="sm"
+                    className="flex items-center space-x-2"
+                  >
+                    <Users className="h-4 w-4" />
+                    <span>Users</span>
+                  </Button>
+                </Link>
+              )}
             </nav>
           </div>
 

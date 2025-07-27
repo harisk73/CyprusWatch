@@ -27,6 +27,25 @@ const isAdmin: typeof isAuthenticated = async (req: any, res, next) => {
   });
 };
 
+// System admin authorization middleware
+const isSystemAdmin: typeof isAuthenticated = async (req: any, res, next) => {
+  return isAuthenticated(req, res, async () => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      
+      if (!user || !user.isSystemAdmin) {
+        return res.status(403).json({ message: "System admin access required" });
+      }
+      
+      next();
+    } catch (error) {
+      console.error("Error checking system admin status:", error);
+      res.status(500).json({ message: "Failed to verify system admin status" });
+    }
+  });
+};
+
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
   await setupAuth(app);
@@ -462,6 +481,51 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } else {
         res.status(500).json({ message: "Failed to send SMS alert" });
       }
+    }
+  });
+
+  // User Management routes (System Admin only)
+  app.get('/api/users', isSystemAdmin, async (req, res) => {
+    try {
+      const users = await storage.getAllUsers();
+      res.json(users);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+      res.status(500).json({ message: "Failed to fetch users" });
+    }
+  });
+
+  app.put('/api/users/:id', isSystemAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const updates = req.body;
+      
+      // Validate required fields
+      if (updates.villageId !== undefined && updates.villageId !== null && updates.villageId.trim() === '') {
+        updates.villageId = null;
+      }
+
+      const user = await storage.updateUser(id, updates);
+      
+      if (user) {
+        res.json(user);
+      } else {
+        res.status(404).json({ message: "User not found" });
+      }
+    } catch (error) {
+      console.error("Error updating user:", error);
+      res.status(500).json({ message: "Failed to update user" });
+    }
+  });
+
+  app.delete('/api/users/:id', isSystemAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+      await storage.deleteUser(id);
+      res.json({ message: "User deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting user:", error);
+      res.status(500).json({ message: "Failed to delete user" });
     }
   });
 
