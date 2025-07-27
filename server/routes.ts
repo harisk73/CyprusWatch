@@ -6,6 +6,7 @@ import { setupAuth, isAuthenticated } from "./replitAuth";
 import { insertEmergencyServiceCallSchema, insertEvacuationRouteSchema, insertEvacuationZoneSchema, insertSmsAlertSchema } from "@shared/schema";
 import { insertEmergencyPinSchema, insertAlertSchema } from "@shared/schema";
 import { z } from "zod";
+import { sendSMS, sendVerificationCode, sendEmergencyNotification } from "./sms";
 
 // Admin authorization middleware
 const isAdmin: typeof isAuthenticated = async (req: any, res, next) => {
@@ -150,8 +151,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
         phoneVerificationExpiry: expiryTime,
       });
 
-      // In production, this would send SMS via Twilio/etc
-      console.log(`SMS verification code for ${phone}: ${verificationCode}`);
+      // Send SMS via Twilio in production
+      try {
+        await sendVerificationCode(phone, verificationCode);
+        console.log(`SMS verification code sent to ${phone}`);
+      } catch (smsError) {
+        console.error("SMS sending failed:", smsError);
+        // In development or SMS failure, log the code
+        if (process.env.NODE_ENV === 'development') {
+          console.log(`Fallback - SMS verification code for ${phone}: ${verificationCode}`);
+        }
+      }
       
       res.json({ 
         message: "Verification code sent",
@@ -526,21 +536,64 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const targetUsers = await storage.getUsersByVillages(targetVillages);
       const recipientCount = targetUsers.length.toString();
       
+      // Create SMS alert record initially as pending
       const smsAlert = await storage.createSmsAlert({
         ...validatedData,
         senderId: userId,
         targetVillages,
         recipientCount,
-        deliveryStatus: "sent", // In real implementation, this would be handled by SMS service
+        deliveryStatus: "pending",
       });
+
+      // Send actual SMS messages to users with verified phone numbers
+      let successCount = 0;
+      let failureCount = 0;
+      
+      for (const targetUser of targetUsers) {
+        if (targetUser.phone && targetUser.phoneVerified) {
+          try {
+            const alertTypeEmoji = validatedData.alertType === 'emergency' ? '🚨' : 
+                                 validatedData.alertType === 'warning' ? '⚠️' : 'ℹ️';
+            const message = `${alertTypeEmoji} CYPRUS EMERGENCY ALERT\n\n${validatedData.message}\n\nStay safe and follow official guidance.`;
+            
+            await sendSMS(targetUser.phone, message);
+            successCount++;
+            console.log(`SMS sent successfully to ${targetUser.phone}`);
+          } catch (smsError) {
+            console.error(`Failed to send SMS to ${targetUser.phone}:`, smsError);
+            failureCount++;
+          }
+        } else {
+          console.log(`User ${targetUser.id} has no verified phone number, skipping SMS`);
+          failureCount++;
+        }
+      }
+
+      // Update SMS alert status based on results
+      const finalStatus = failureCount === 0 ? "sent" : 
+                         successCount === 0 ? "failed" : "partially_sent";
+      
+      await storage.updateSmsAlertDeliveryStatus(smsAlert.id, finalStatus);
       
       // Broadcast SMS alert notification
       broadcast({
         type: 'sms_alert_sent',
-        data: { smsAlert, targetUsers: targetUsers.map(u => u.id) }
+        data: { 
+          smsAlert: { ...smsAlert, deliveryStatus: finalStatus }, 
+          targetUsers: targetUsers.map(u => u.id),
+          successCount,
+          failureCount
+        }
       });
       
-      res.json(smsAlert);
+      console.log(`SMS Alert completed: ${successCount} sent, ${failureCount} failed`);
+      
+      res.json({
+        ...smsAlert,
+        deliveryStatus: finalStatus,
+        successCount,
+        failureCount
+      });
     } catch (error) {
       console.error("Error sending SMS alert:", error);
       if (error instanceof z.ZodError) {
