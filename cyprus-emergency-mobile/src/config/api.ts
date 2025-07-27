@@ -1,11 +1,9 @@
-// import Constants from "expo-constants"; // Commented out for now
-
 // Check if we're in development mode
 declare const __DEV__: boolean;
 
 // Replace with your actual Replit deployment URL
 // For development, use the local port
-const API_BASE_URL = __DEV__ 
+const API_BASE_URL = typeof window !== 'undefined' && window.location.hostname === 'localhost'
   ? "http://localhost:5000" 
   : "https://cyprus-watch.replit.app";
 

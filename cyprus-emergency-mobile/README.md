@@ -21,6 +21,19 @@ This is the React Native mobile application for the Cyprus Emergency Alert Syste
 - Emergency reporting with mock location data
 - Profile management
 - Responsive mobile interface
+- **Interactive HTML Demo Available** - See `demo.html` for a working preview
+
+## Demo
+
+### HTML Demo
+Open `demo.html` in your browser to see an interactive demo of the mobile app with all screens and functionality working.
+
+### Features Demonstrated:
+- Login screen with email authentication
+- Emergency dashboard with quick actions
+- Emergency reporting with location and type selection
+- User profile management
+- Full navigation between screens
 
 ## Development Setup
 
