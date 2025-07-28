@@ -12,6 +12,11 @@ if (!process.env.REPLIT_DOMAINS) {
   throw new Error("Environment variable REPLIT_DOMAINS not provided");
 }
 
+// Add support for custom domains by ensuring they're included in REPLIT_DOMAINS
+const defaultDomains = process.env.REPLIT_DOMAINS;
+const customDomain = process.env.CUSTOM_DOMAIN;
+const allDomains = customDomain ? `${defaultDomains},${customDomain}` : defaultDomains;
+
 const getOidcConfig = memoize(
   async () => {
     return await client.discovery(
@@ -84,8 +89,7 @@ export async function setupAuth(app: Express) {
     verified(null, user);
   };
 
-  for (const domain of process.env
-    .REPLIT_DOMAINS!.split(",")) {
+  for (const domain of allDomains.split(",")) {
     const strategy = new Strategy(
       {
         name: `replitauth:${domain}`,
