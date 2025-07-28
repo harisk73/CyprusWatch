@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Shield, MapPin, Bell, Users } from "lucide-react";
 import { useLanguage } from "@/contexts/language-context";
 import { LanguageSwitcher } from "@/components/language-switcher";
+import { DisclaimerBanner } from "@/components/disclaimer-banner";
 
 export default function Landing() {
   const { t } = useLanguage();
@@ -29,6 +30,11 @@ export default function Landing() {
           </div>
         </div>
       </header>
+
+      {/* Disclaimer Banner */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
+        <DisclaimerBanner />
+      </div>
 
       {/* Hero Section */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">

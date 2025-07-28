@@ -35,6 +35,9 @@ const translations = {
     'landing.callToActionDescription': 'Sign in to access village-specific emergency alerts, report incidents in your area, and connect with your local emergency response network.',
     'landing.signInToContinue': 'Sign In to Continue',
     
+    // Disclaimer
+    'disclaimer.text': 'PLEASE NOTE: This website is not related to any official government service and the information shared might not be accurate. Please confirm with your local authorities before you take any action. Our goal is to work with local communities to create an emergency response system through resident collaboration.',
+    
     // Dashboard
     'dashboard.title': 'Emergency Dashboard',
     'dashboard.welcome': 'Welcome back',
@@ -243,6 +246,9 @@ const translations = {
     'landing.callToActionTitle': 'Εγγραφείτε στην Κοινότητα του Χωριού σας Σήμερα',
     'landing.callToActionDescription': 'Συνδεθείτε για πρόσβαση σε ειδοποιήσεις έκτακτης ανάγκης του χωριού σας, αναφορά περιστατικών στην περιοχή σας και σύνδεση με το τοπικό δίκτυο αντίδρασης έκτακτης ανάγκης.',
     'landing.signInToContinue': 'Συνδεθείτε για Συνέχεια',
+    
+    // Disclaimer
+    'disclaimer.text': 'ΠΑΡΑΚΑΛΩ ΣΗΜΕΙΩΣΤΕ: Αυτός ο ιστότοπος δεν σχετίζεται με καμία επίσημη κυβερνητική υπηρεσία και οι πληροφορίες που μοιράζονται ενδέχεται να μην είναι ακριβείς. Παρακαλούμε επιβεβαιώστε με τις τοπικές σας αρχές πριν αναλάβετε οποιαδήποτε δράση. Στόχος μας είναι να συνεργαστούμε με τις τοπικές κοινότητες για να δημιουργήσουμε ένα σύστημα αντίδρασης έκτακτης ανάγκης μέσω της συνεργασίας των κατοίκων.',
     
     // Dashboard
     'dashboard.title': 'Πίνακας Ελέγχου Έκτακτων Αναγκών',

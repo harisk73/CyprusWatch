@@ -7,6 +7,7 @@ import EmergencyBanner from "@/components/emergency-banner";
 import DashboardOverview from "@/components/dashboard-overview";
 import InteractiveMap from "@/components/interactive-map";
 import AlertsNotifications from "@/components/alerts-notifications";
+import { DisclaimerBanner } from "@/components/disclaimer-banner";
 
 import type { User } from "@shared/schema";
 
@@ -51,6 +52,9 @@ export default function Home() {
   return (
     <div className="font-inter bg-neutral-100 min-h-screen">
       <NavigationHeader />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
+        <DisclaimerBanner />
+      </div>
       <EmergencyBanner />
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
