@@ -8,7 +8,7 @@ export function DisclaimerBanner() {
   return (
     <Alert className="bg-orange-50 border-orange-200 text-orange-800 mb-4">
       <Info className="h-4 w-4" />
-      <AlertDescription className="text-sm">
+      <AlertDescription className="text-[16px]">
         {t('disclaimer.text')}
       </AlertDescription>
     </Alert>
