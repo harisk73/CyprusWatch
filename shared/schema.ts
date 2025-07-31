@@ -11,7 +11,6 @@ import {
   varchar,
   decimal,
   pgEnum,
-  pgPrimaryKey,
 } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
@@ -27,19 +26,15 @@ export const sessions = pgTable(
   (table) => [index("IDX_session_expire").on(table.expire)],
 );
 
-// User storage table - updated for Auth.js compatibility
+// User storage table - mandatory for Replit Auth
 export const users = pgTable("users", {
   id: varchar("id")
     .primaryKey()
     .default(sql`gen_random_uuid()`),
-  name: varchar("name"),
   email: varchar("email").unique(),
-  emailVerified: timestamp("emailVerified"),
-  image: varchar("image"),
   firstName: varchar("first_name"),
   lastName: varchar("last_name"),
   profileImageUrl: varchar("profile_image_url"),
-  passwordHash: varchar("password_hash"), // For email/password auth
   phone: varchar("phone"),
   phoneVerified: boolean("phone_verified").default(false),
   phoneVerificationCode: varchar("phone_verification_code"),
@@ -399,43 +394,6 @@ export const insertSmsAlertSchema = createInsertSchema(smsAlerts).omit({
   id: true,
   sentAt: true,
 });
-
-// Auth.js tables - required for authentication
-export const accounts = pgTable("account", {
-  userId: varchar("userId")
-    .notNull()
-    .references(() => users.id, { onDelete: "cascade" }),
-  type: varchar("type").notNull(),
-  provider: varchar("provider").notNull(),
-  providerAccountId: varchar("providerAccountId").notNull(),
-  refresh_token: text("refresh_token"),
-  access_token: text("access_token"),
-  expires_at: integer("expires_at"),
-  token_type: varchar("token_type"),
-  scope: varchar("scope"),
-  id_token: text("id_token"),
-  session_state: varchar("session_state"),
-}, (account) => ({
-  compoundKey: pgPrimaryKey({
-    columns: [account.provider, account.providerAccountId],
-  }),
-}));
-
-export const authSessions = pgTable("session", {
-  sessionToken: varchar("sessionToken").notNull().primaryKey(),
-  userId: varchar("userId")
-    .notNull()
-    .references(() => users.id, { onDelete: "cascade" }),
-  expires: timestamp("expires").notNull(),
-});
-
-export const verificationTokens = pgTable("verificationToken", {
-  identifier: varchar("identifier").notNull(),
-  token: varchar("token").notNull(),
-  expires: timestamp("expires").notNull(),
-}, (vt) => ({
-  compoundKey: pgPrimaryKey({ columns: [vt.identifier, vt.token] }),
-}));
 
 // Types
 export type InsertUser = z.infer<typeof insertUserSchema>;

@@ -2,12 +2,11 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { WebSocketServer, WebSocket } from "ws";
 import { storage } from "./storage";
-import { isAuthenticated, isAdmin } from "./auth";
-import authRoutes from "./authRoutes";
+import { setupAuth, isAuthenticated } from "./replitAuth";
 import { insertEmergencyServiceCallSchema, insertEvacuationRouteSchema, insertEvacuationZoneSchema, insertSmsAlertSchema } from "@shared/schema";
 import { insertEmergencyPinSchema, insertAlertSchema } from "@shared/schema";
 import { z } from "zod";
-import { sendSMS, sendVerificationCode, sendEmergencyNotification, getSMSServiceStatus } from "./sms";
+import { sendSMS, sendVerificationCode, sendEmergencyNotification } from "./sms";
 
 // Admin authorization middleware
 const isAdmin: typeof isAuthenticated = async (req: any, res, next) => {
@@ -117,13 +116,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Auth middleware
-  // Auth is now set up in server/index.ts
+  await setupAuth(app);
 
   // Auth routes
-  app.use('/api/auth', authRoutes);
-
-  // Legacy route - now handled by authRoutes at /api/auth/user
-  // Keeping for backward compatibility, but will redirect to new endpoint
+  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      res.json(user);
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      res.status(500).json({ message: "Failed to fetch user" });
+    }
+  });
 
   // SMS Test endpoint for debugging (development only)
   if (process.env.NODE_ENV === 'development') {
