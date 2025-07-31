@@ -7,7 +7,7 @@ import authRoutes from "./authRoutes";
 import { insertEmergencyServiceCallSchema, insertEvacuationRouteSchema, insertEvacuationZoneSchema, insertSmsAlertSchema } from "@shared/schema";
 import { insertEmergencyPinSchema, insertAlertSchema } from "@shared/schema";
 import { z } from "zod";
-import { sendSMS, sendVerificationCode, sendEmergencyNotification } from "./sms";
+import { sendSMS, sendVerificationCode, sendEmergencyNotification, getSMSServiceStatus } from "./sms";
 
 // Admin authorization middleware
 const isAdmin: typeof isAuthenticated = async (req: any, res, next) => {
