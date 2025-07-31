@@ -17,6 +17,8 @@
     "dev:server": "NODE_ENV=development tsx server/index.ts"
   },
   "dependencies": {
+    "@auth/drizzle-adapter": "^1.7.2",
+    "@auth/express": "^0.7.4",
     "@expo/cli": "^0.24.20",
     "@hookform/resolvers": "^3.10.0",
     "@jridgewell/trace-mapping": "^0.3.25",
@@ -86,7 +88,8 @@
     "wouter": "^3.3.5",
     "ws": "^8.18.0",
     "zod": "^3.24.2",
-    "zod-validation-error": "^3.4.0"
+    "zod-validation-error": "^3.4.0",
+    "bcryptjs": "^2.4.3"
   },
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.15",
@@ -100,6 +103,7 @@
     "@types/react": "^18.3.11",
     "@types/react-dom": "^18.3.1",
     "@types/ws": "^8.5.13",
+    "@types/bcryptjs": "^2.4.6",
     "@vitejs/plugin-react": "^4.3.2",
     "autoprefixer": "^10.4.20",
     "drizzle-kit": "^0.30.4",
