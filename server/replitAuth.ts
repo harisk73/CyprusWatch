@@ -8,8 +8,11 @@ import memoize from "memoizee";
 import connectPg from "connect-pg-simple";
 import { storage } from "./storage";
 
-if (!process.env.REPLIT_DOMAINS) {
-  throw new Error("Environment variable REPLIT_DOMAINS not provided");
+// Make Replit authentication optional for local development
+const isReplitAuthEnabled = process.env.REPLIT_DOMAINS && process.env.REPL_ID;
+
+if (!isReplitAuthEnabled) {
+  console.log("Warning: Replit authentication is disabled. Set REPLIT_DOMAINS and REPL_ID environment variables to enable it.");
 }
 
 const getOidcConfig = memoize(
@@ -72,6 +75,28 @@ export async function setupAuth(app: Express) {
   app.use(passport.initialize());
   app.use(passport.session());
 
+  // Only setup Replit authentication if enabled
+  if (!isReplitAuthEnabled) {
+    console.log("Skipping Replit authentication setup - running in local development mode");
+    
+    // Set up simple development authentication routes
+    app.get("/api/login", (req, res) => {
+      res.json({ message: "Authentication disabled in development mode" });
+    });
+
+    app.get("/api/callback", (req, res) => {
+      res.redirect("/");
+    });
+
+    app.get("/api/logout", (req, res) => {
+      req.logout(() => {
+        res.redirect("/");
+      });
+    });
+    
+    return;
+  }
+
   const config = await getOidcConfig();
 
   const verify: VerifyFunction = async (
@@ -128,6 +153,11 @@ export async function setupAuth(app: Express) {
 }
 
 export const isAuthenticated: RequestHandler = async (req, res, next) => {
+  // Skip authentication in development mode when Replit auth is disabled
+  if (!isReplitAuthEnabled) {
+    return next();
+  }
+
   const user = req.user as any;
 
   if (!req.isAuthenticated() || !user.expires_at) {
