@@ -1,50 +1,74 @@
-import twilio from 'twilio';
+import fetch from 'node-fetch';
 
-// Initialize Twilio client
-const client = twilio(
-  process.env.TWILIO_ACCOUNT_SID,
-  process.env.TWILIO_AUTH_TOKEN
-);
+// SMS Carrier EU API configuration
+const SMS_CARRIER_API_URL = 'https://api.i-digital-m.com/v2/sms';
+const SMS_CARRIER_USERNAME = process.env.SMS_CARRIER_USERNAME;
+const SMS_CARRIER_PASSWORD = process.env.SMS_CARRIER_PASSWORD;
+const SMS_CARRIER_SENDER = process.env.SMS_CARRIER_SENDER;
 
 export async function sendSMS(to: string, message: string): Promise<void> {
-  // Check if Twilio credentials are available
-  if (!process.env.TWILIO_ACCOUNT_SID || !process.env.TWILIO_AUTH_TOKEN || !process.env.TWILIO_PHONE_NUMBER) {
-    console.error('Twilio credentials missing:', {
-      accountSid: !!process.env.TWILIO_ACCOUNT_SID,
-      authToken: !!process.env.TWILIO_AUTH_TOKEN,
-      phoneNumber: !!process.env.TWILIO_PHONE_NUMBER
+  // Check if SMS Carrier credentials are available
+  if (!SMS_CARRIER_USERNAME || !SMS_CARRIER_PASSWORD || !SMS_CARRIER_SENDER) {
+    console.error('SMS Carrier credentials missing:', {
+      username: !!SMS_CARRIER_USERNAME,
+      password: !!SMS_CARRIER_PASSWORD,
+      sender: !!SMS_CARRIER_SENDER
     });
-    throw new Error('Twilio credentials not configured');
+    
+    // In development mode, log the message instead of failing
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`Development SMS to ${to}: ${message}`);
+      return;
+    }
+    
+    throw new Error('SMS Carrier credentials not configured');
   }
 
-  console.log(`Attempting to send SMS to ${to} from ${process.env.TWILIO_PHONE_NUMBER}`);
+  console.log(`Attempting to send SMS via SMS Carrier EU to ${to} from ${SMS_CARRIER_SENDER}`);
   console.log(`Message preview: ${message.substring(0, 50)}...`);
 
   try {
-    const result = await client.messages.create({
-      body: message,
-      from: process.env.TWILIO_PHONE_NUMBER,
-      to: to,
+    // Create Basic Auth header
+    const credentials = Buffer.from(`${SMS_CARRIER_USERNAME}:${SMS_CARRIER_PASSWORD}`).toString('base64');
+    
+    const response = await fetch(SMS_CARRIER_API_URL, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Basic ${credentials}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify({
+        sender: SMS_CARRIER_SENDER,
+        recipient: to,
+        message: message,
+        dlr: 1 // Request delivery reports
+      })
     });
 
-    console.log(`SMS sent successfully. SID: ${result.sid}, Status: ${result.status}`);
+    const result = await response.json() as any;
+    
+    if (result.status === 0 && result.messageId) {
+      console.log(`SMS sent successfully via SMS Carrier EU. MessageID: ${result.messageId}`);
+    } else {
+      console.error('SMS Carrier error response:', result);
+      throw new Error(result.errors?.[0]?.message || 'Failed to send SMS via SMS Carrier EU');
+    }
   } catch (error: any) {
-    console.error('Twilio SMS error details:', {
+    console.error('SMS Carrier error details:', {
       message: error.message,
-      code: error.code,
-      moreInfo: error.moreInfo,
-      status: error.status,
-      details: error.details
+      name: error.name,
+      stack: error.stack
     });
     
-    // Handle common Twilio errors with user-friendly messages
+    // Handle common SMS errors with user-friendly messages
     let errorMessage = 'Failed to send SMS';
-    if (error.code === 21211) {
+    if (error.message?.includes('Invalid phone number')) {
       errorMessage = 'Invalid phone number format. Please include country code (e.g., +357...)';
-    } else if (error.code === 21614) {
-      errorMessage = 'Phone number is not valid or not reachable';
-    } else if (error.code === 21608) {
-      errorMessage = 'The phone number is not verified with Twilio (trial account limitation)';
+    } else if (error.message?.includes('insufficient balance')) {
+      errorMessage = 'SMS service account has insufficient balance';
+    } else if (error.message?.includes('unauthorized')) {
+      errorMessage = 'SMS service authentication failed';
     } else if (error.message) {
       errorMessage = `SMS delivery failed: ${error.message}`;
     }

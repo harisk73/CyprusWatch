@@ -82,6 +82,7 @@ Preferred communication style: Simple, everyday language.
 - **Database**: Neon PostgreSQL serverless for scalable data storage
 - **Authentication**: Replit OIDC for secure user authentication
 - **Real-time**: WebSocket (ws library) for live updates
+- **SMS Service**: SMS Carrier EU for GDPR-compliant European SMS delivery
 - **Styling**: Tailwind CSS + Radix UI for modern, accessible UI components
 - **Validation**: Zod for runtime type validation and schema validation
 
@@ -224,43 +225,45 @@ Preferred communication style: Simple, everyday language.
 - Admin oversight and moderation capabilities
 - User education on security measures
 
-## Recent SMS Integration Improvements (January 27, 2025)
+## Recent SMS Integration Migration (January 27, 2025)
 
-**Major Feature Completed - Real SMS Service Integration:**
-1. **Twilio SMS Service Integration**: Complete integration with Twilio for production SMS delivery
-   - `server/sms.ts` - SMS utility functions for sending verification codes and emergency alerts
-   - `sendVerificationCode()` - Sends 6-digit verification codes via SMS
+**Major Feature Completed - SMS Carrier EU Integration:**
+1. **SMS Carrier EU Service Integration**: Complete migration from Twilio to SMS Carrier EU for GDPR-compliant European SMS delivery
+   - `server/sms.ts` - SMS utility functions completely rewritten for SMS Carrier EU HTTP API
+   - `sendVerificationCode()` - Sends 6-digit verification codes via SMS Carrier EU
    - `sendEmergencyNotification()` - Sends formatted emergency alerts to users
-   - Production-ready error handling and logging
-   - Fallback to console logging in development mode
+   - Production-ready error handling and logging for EU service
+   - Fallback to console logging in development mode when credentials unavailable
 
-2. **Enhanced Phone Verification System**: Real SMS delivery for verification codes
-   - Production SMS delivery via Twilio for phone verification
-   - Improved error handling for SMS delivery failures
+2. **Enhanced European SMS Compliance**: Real SMS delivery through EU-hosted infrastructure
+   - Production SMS delivery via SMS Carrier EU for phone verification
+   - GDPR-compliant SMS service with EU data hosting
+   - Improved error handling specific to SMS Carrier EU API responses
    - Maintains development mode compatibility with console logging
    - Secure verification code generation and delivery
 
-3. **Real-time Emergency SMS Alerts**: Actual SMS notifications for emergency broadcasts
-   - Admin SMS alerts now send real SMS messages to verified users
-   - Delivery status tracking (sent, failed, partially_sent)
+3. **Real-time Emergency SMS Alerts**: European SMS notifications for emergency broadcasts
+   - Admin SMS alerts now send real SMS messages to verified users via SMS Carrier EU
+   - Delivery tracking with messageId system
    - Only sends to users with verified phone numbers
    - Formatted emergency messages with appropriate emojis
    - Success/failure counting and reporting
    - Broadcast notifications with delivery statistics
 
-4. **Production SMS Deployment**: Environment variables configured for deployment
-   - TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_PHONE_NUMBER configured
+4. **Production SMS Deployment**: Environment variables updated for SMS Carrier EU
+   - SMS_CARRIER_USERNAME, SMS_CARRIER_PASSWORD, SMS_CARRIER_SENDER configured
    - Automatic fallback to development mode when credentials unavailable
-   - Error handling for SMS service failures
+   - Error handling for SMS Carrier EU service failures
    - Production logging and monitoring capabilities
 
-**SMS Integration Technical Details:**
-- Twilio SDK properly integrated and configured
+**SMS Carrier EU Integration Technical Details:**
+- HTTP REST API integration with Basic Authentication
 - SMS message formatting with emergency context
-- Delivery status tracking and database updates
+- MessageID-based delivery tracking
 - Real-time broadcast notifications for SMS delivery status
 - Comprehensive error handling and logging
 - Development/production environment detection
+- EU GDPR compliance and data sovereignty
 
 ## Recent Deployment and Mobile App Fixes (January 27, 2025)
 

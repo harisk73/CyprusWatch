@@ -139,22 +139,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
           return res.status(400).json({ message: "Phone number required" });
         }
         
-        console.log('Testing SMS configuration...');
+        console.log('Testing SMS Carrier EU configuration...');
         console.log('Environment variables:', {
-          TWILIO_ACCOUNT_SID: !!process.env.TWILIO_ACCOUNT_SID,
-          TWILIO_AUTH_TOKEN: !!process.env.TWILIO_AUTH_TOKEN,
-          TWILIO_PHONE_NUMBER: !!process.env.TWILIO_PHONE_NUMBER,
-          fromNumber: process.env.TWILIO_PHONE_NUMBER
+          SMS_CARRIER_USERNAME: !!process.env.SMS_CARRIER_USERNAME,
+          SMS_CARRIER_PASSWORD: !!process.env.SMS_CARRIER_PASSWORD,
+          SMS_CARRIER_SENDER: !!process.env.SMS_CARRIER_SENDER,
+          senderNumber: process.env.SMS_CARRIER_SENDER
         });
         
-        await sendSMS(phone, "Test message from Cyprus Emergency System");
-        res.json({ message: "Test SMS sent successfully" });
+        await sendSMS(phone, "Test message from Cyprus Emergency System via SMS Carrier EU");
+        res.json({ message: "Test SMS sent successfully via SMS Carrier EU" });
       } catch (error: any) {
-        console.error("SMS test failed:", error);
+        console.error("SMS Carrier EU test failed:", error);
         res.status(500).json({ 
-          message: "SMS test failed", 
+          message: "SMS Carrier EU test failed", 
           error: error.message,
-          details: error.code || 'No error code'
+          details: error.name || 'No error code'
         });
       }
     });
@@ -194,7 +194,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // If this is a critical SMS error (not development), we might want to return an error
         // For now, we'll continue and let the user know there was an SMS issue
         if (process.env.NODE_ENV === 'production') {
-          console.error(`Production SMS failure for ${phone}:`, smsError.message);
+          console.error(`Production SMS Carrier EU failure for ${phone}:`, smsError.message);
         }
       }
       
